@@ -1,0 +1,39 @@
+/*ALTER TABLE `push_mobile_clients` ADD `ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ;
+SET GLOBAL event_scheduler=ON;
+
+CREATE EVENT `clear_mobile_clients`
+  ON SCHEDULE EVERY 1 MONTH STARTS CURRENT_TIMESTAMP
+  ON COMPLETION NOT PRESERVE
+  ENABLE
+  COMMENT ''  DO
+DELETE FROM push_mobile_clients where NOW()> push_mobile_clients.ctime+24*60*60*30;
+
+[mysqld]
+event_scheduler = on
+
+
+
+CREATE TABLE IF NOT EXISTS  `ci_sessions` (
+	session_id varchar(40) DEFAULT '0' NOT NULL,
+	ip_address varchar(45) DEFAULT '0' NOT NULL,
+	user_agent varchar(120) NOT NULL,
+	last_activity int(10) unsigned DEFAULT 0 NOT NULL,
+	user_data text NOT NULL,
+	PRIMARY KEY (session_id),
+	KEY `last_activity_idx` (`last_activity`)
+);
+
+
+CREATE EVENT `clear_session` ON SCHEDULE EVERY 1 DAY STARTS CURRENT_TIMESTAMP ON COMPLETION NOT PRESERVE ENABLE DO DELETE FROM ci_session where NOW()> ci_session.last_activity+24*60*60 
+*/
+
+/*ALTER TABLE `properties`
+  DROP `loc_name`;
+  
+ALTER TABLE `properties` ADD `min` INT(11) NULL , ADD `max` INT(11) NULL ;*/
+ALTER TABLE `devices` DROP `loc_name`;
+
+
+ALTER TABLE `devices` ADD `virtual` TINYINT(1) NOT NULL DEFAULT '0' ;
+ALTER TABLE `properties`
+	CHANGE COLUMN `type` `type` ENUM('int32','string','bool','uint16','uint8','float','time','dayofweek') NOT NULL AFTER `id_property`;*/

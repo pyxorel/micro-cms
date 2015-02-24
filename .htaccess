@@ -1,0 +1,20 @@
+Options +FollowSymLinks
+Options -Indexes
+DirectoryIndex index.php index.html
+AddDefaultCharset UTF-8
+
+#php_flag register_globals off
+#php_value memory_limit 32M
+#php_value max_execution_time 60
+
+php_value upload_max_filesize 1M
+php_value post_max_size 1M
+
+<IfModule mod_rewrite.c>
+RewriteEngine on
+RewriteBase /__test_cms/
+RewriteCond $1 !^(index\.php|uploads|robots\.txt|favicon\.ico)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /__test_cms/index.php/$1 [L]
+</IfModule>

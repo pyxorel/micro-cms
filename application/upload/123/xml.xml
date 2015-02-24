@@ -1,0 +1,8 @@
+<scenario id="1lbqegvd" name="Включить свет при обнаржении протечки" devices="1161">
+	<conditions>
+		<condition dev_id="124" prop_id = "444" func="{e|ne|g|l|le|ge}" value="0"/>
+	</conditions>
+	<actions>
+		<action dev_id="124" prop_id = "444" value="0"/>
+	</actions>
+</scenario>
