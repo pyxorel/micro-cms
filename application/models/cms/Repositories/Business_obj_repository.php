@@ -139,6 +139,26 @@ class Business_obj_repository extends EntityRepository
         return $query->getResult();
     }
 
+
+    private function get_common_class_fields_by_name($names)
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $query = $qb->select('c')
+                ->from('Entities\common_class_field', 'c')
+                ->andWhere('c.name IN (:ids)')
+                ->setParameter('ids', $names)
+                ->orderBy('c.name', 'ASC')->getQuery();
+
+        $result = [];
+        foreach ($query->getResult() as $item)
+        {
+            $result[$item->name] = $item;
+        }
+
+        return $result;
+    }
+
+
     /**
      * @return Entities\Instance
      */
@@ -152,6 +172,17 @@ class Business_obj_repository extends EntityRepository
         return $query->getResult();
     }
 
+
+    private function get_operator($value)
+    {
+        switch($value[0])
+        {
+            case '>': return '>';
+            case '<': return '<';
+            default: return '=';
+        }
+    }
+
     /**
      * @return Entities\Instance
      */
@@ -162,10 +193,22 @@ class Business_obj_repository extends EntityRepository
             ->from('Entities\Instance_view', 'i0')->groupBy('i0.id');
 
         if (!empty($fields)) {
+            $f_db = $this->get_common_class_fields_by_name(array_keys($fields));
             $x = 1;
             foreach ($fields as $k => $v) {
-                $query = $query->from('Entities\Instance_view', "i$x")->andWhere("i0.id = i$x")
-                    ->andWhere("(i$x.field_name =:f_name$x AND i$x.value =:value$x)")->setParameter("f_name$x", $k)->setParameter("value$x", $v);
+                $query = $query->from('Entities\Instance_view', "i$x")->andWhere("i0.id = i$x");
+
+                if($f_db[$k]->type=='int' || $f_db[$k]->type=='decimal')
+                {
+                    $op = $this->get_operator($v);
+                    $v = trim($v, "<>");
+                    $query = $query->andWhere("(CAST(i$x.value as decimal) $op :f_value$x AND i$x.field_name=:f_name$x)")->setParameter("f_name$x", $k)->setParameter("f_value$x", $v);
+                }
+                else
+                {
+                    $query = $query->andWhere("(i$x.value LIKE :f_value$x AND i$x.field_name=:f_name$x)")->setParameter("f_name$x", $k)->setParameter("f_value$x", $v);
+                }
+
                 $x++;
             }
         } else {
@@ -173,13 +216,12 @@ class Business_obj_repository extends EntityRepository
         }
 
         if (!empty($order)) {
-            $query = $query->andwhere('i0.field_name = :order')->setParameter('order', key($order))->orderBy('i0.value', current($order));
+            $query = $query->andWhere('i0.field_name = :order')->setParameter('order', key($order))->orderBy('i0.value', current($order));
         }
 
         if (!empty($class)) {
-            $query = $query->andwhere('i0.class_name = :class_name')->setParameter('class_name', $class);
+            $query = $query->andWhere('i0.class_name = :class_name')->setParameter('class_name', $class);
         }
-
 
         if (!empty($paginator)) {
             $stmt = $this->getEntityManager()->getConnection()->prepare('select count(*) from (' . $this->getFullSQL($query->getQuery()) . ') as t1');

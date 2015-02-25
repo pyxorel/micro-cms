@@ -31,7 +31,7 @@ $opts = array(
 	'roots' => array(
 		array(
 			'driver'        => 'LocalFileSystem',   // driver for accessing file system (REQUIRED)
-			'path'          => __DIR__.'/../../../upload',/**/         // path to files (REQUIRED)
+			'path'          => __DIR__.'/../../../../upload',/**/         // path to files (REQUIRED)
 			'URL'         => 'http://localhost/__test_cms',// dirname($_SERVER['PHP_SELF']) . '\application\upload', // URL to files (REQUIRED)
 			'accessControl' => 'access',// disable and hide dot starting files (OPTIONAL)
 			/*'tmbPath'    => '/application/upload/.tmb',*/
@@ -39,7 +39,7 @@ $opts = array(
 		)
 	)
 );
-
+//var_dump(__DIR__.'/../../../upload');
 // run elFinder
 $connector = new elFinderConnector(new elFinder($opts));
 $connector->run();

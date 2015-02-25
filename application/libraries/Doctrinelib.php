@@ -36,7 +36,6 @@ class Doctrinelib
         $config->setAutoGenerateProxyClasses(true);
         /*$logger = new EchoSQLLogger;
         $config->setSQLLogger($logger);*/
-
         $this->_ci = &get_instance();
         $this->_ci->load->database('default');
         $db = $this->_ci->db;
@@ -55,7 +54,7 @@ class Doctrinelib
 
         $doctrineConfig = $this->em->getConfiguration();
         $doctrineConfig->addCustomStringFunction('FIELD', 'DoctrineExtensions\Query\Mysql\Field');
-
+        $doctrineConfig->addCustomStringFunction('CAST', 'DoctrineExtensions\Query\Mysql\Cast');
     }
 
     /**
