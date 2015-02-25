@@ -35,7 +35,7 @@
                     </li>
                     <li id="page"><?= anchor('cms/page', '<i class="icon-file-alt" style="width:auto"> Страницы</i> ') ?>
                     </li>
-                    <li id="gall"><?= anchor('cms/gallery', '<i class="icon-picture" style="width:auto"> Галлереи</i>') ?>
+                    <li id="gall"><?= anchor('cms/gallery', '<i class="icon-picture" style="width:auto"> Галереи</i>') ?>
                     </li>
                     <li id="res"><?= anchor('cms/resource', '<i class="icon-list-alt" style="width:auto"> Ресурсы</i>') ?>
                     </li>

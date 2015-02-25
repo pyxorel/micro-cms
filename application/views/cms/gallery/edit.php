@@ -93,8 +93,8 @@ echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinde
 
 <div id="elFinder"></div>
 
-<div id="dialogAddItem" title="Добавление изображения в галлерею"></div>
-<div id="dialogEditItem" title="Изменить изобрежение в галлереи"></div>
+<div id="dialogAddItem" title="Добавление изображения в галерею"></div>
+<div id="dialogEditItem" title="Изменить изобрежение в галереи"></div>
 <?php
 echo validation_errors('<span class="error">', '</span>');
 
@@ -102,7 +102,7 @@ echo form_open('cms/gallery/edit', "id=\"form\" class=\"form-horizontal well\"")
 echo form_hidden('id', isset($gallery) ? $gallery->ID : set_value('id'));
 ?>
 <fieldset>
-    <legend>Редактирование галлереи</legend>
+    <legend>Редактирование галереи</legend>
     <div class="control-group">
         <label class="control-label">Название (уникально)</label>
         <?= form_input(array('name' => 'name', 'id' => 'name', 'class' => "input-xlarge"), isset($gallery) ? $gallery->Name : set_value('name')); ?>

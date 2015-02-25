@@ -131,7 +131,7 @@ echo form_open_multipart('cms/business_obj/edit_instance', "id=\"form\" class=\"
 echo form_hidden('id', isset($obj) ? $obj->id : set_value('id'));
 ?>
 
-<legend>Редактирование объекта</legend>
+<legend>Редактирование объекта <?="($obj->class_name)"?></legend>
 <?= validation_errors('<div class="control-group"><span class="error">', '</span></div>'); ?>
 <fieldset id="static">
     <div class="control-group">Заполните необходимые поля:</div>
@@ -160,7 +160,7 @@ echo form_hidden('id', isset($obj) ? $obj->id : set_value('id'));
                     <?= form_input(['name' => "files[{$item['id']}]", 'type' => 'hidden'], set_value("fields[{$item['id']}]"), "id=\"fields[{$item['id']}]\" class=\"input-medium\""); ?>
                     <?= anchor('#', '<i class="icon-plus-sign"></i> Выбрать', "name=\"add\" id=\"add_fields_{$item['id']}\" input_id=\"{$item['id']}\" class=\"btn add_file\""); ?>
                     <div id="container_file_<?= $item['id'] ?>" input_id="<?= $item['id'] ?>" style="display: inline;">
-                        <?php foreach ($files as $f): ?>
+                        <?php if (!empty($files)) foreach ($files as $f): ?>
                             <?php if(!empty($f)): ?>
                             <div style="display: inline;"><a href="#" class="rm"><span class="icon-remove" style="margin-left: 10px;"></span></a><?= base64_decode($f) ?>
                             </div>

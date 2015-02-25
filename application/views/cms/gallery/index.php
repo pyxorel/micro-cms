@@ -11,7 +11,7 @@
 
         <div class="container buttons">
             <?php
-            echo anchor('cms/gallery/createView', '<i class="icon-plus-sign"></i> Добавить галлерею', "class=\"item btn btn-primary\"");
+            echo anchor('cms/gallery/createView', '<i class="icon-plus-sign"></i> Добавить галерею', "class=\"item btn btn-primary\"");
             ?>
         </div>
 

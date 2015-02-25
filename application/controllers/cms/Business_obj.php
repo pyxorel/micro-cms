@@ -57,19 +57,23 @@ class Business_obj extends BaseController
         $this->form_validation->set_rules('name', 'Служебное название', 'trim|required|max_length[50]|alpha_dash');
         $this->form_validation->set_rules('loc_name', 'Название', 'trim|required|max_length[50]');
 
+        $id = $this->input->get_post('id', TRUE);
+
         if ($this->form_validation->run() === FALSE) {
-            parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_edit');
+            parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_edit', ['obj' => $this->_em->getRepository('Entities\Common_class')->read_common_class($id),
+                'fields' => $this->_em->getRepository('Entities\Common_class_field')->get_common_class_fields()]);
         } else {
 
             $rep = $this->_em->getRepository('Entities\Common_class');
             if (!$rep->update_common_class(
-                $this->input->get_post('id', TRUE),
+                $id,
                 $this->input->get_post('name', TRUE),
                 $this->input->get_post('loc_name', TRUE),
                 $this->input->get_post('fields'))
             ) {
                 $this->form_validation->set_custom_error($rep->last_error);
-                parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_edit/');
+                parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_edit', ['obj' => $this->_em->getRepository('Entities\Common_class')->read_common_class($id),
+                    'fields' => $this->_em->getRepository('Entities\Common_class_field')->get_common_class_fields()]);
             } else {
                 redirect('cms/business_obj');
             }
@@ -212,7 +216,7 @@ class Business_obj extends BaseController
         }, $fields);
 
         $fields = array_map(function ($f) {
-            return preg_replace('/("fake",?)/i',"", $f);
+            return preg_replace('/("fake",?)/i', "", $f);
         }, $fields);
         return $fields;
     }

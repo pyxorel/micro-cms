@@ -27,7 +27,7 @@ echo validation_errors('<span class="error">', '</span>');
 echo form_open('cms/gallery/create', "id=\"form\" class=\"form-horizontal well\"");
 ?>
 
-<legend>Создание галлереи</legend>
+<legend>Создание галереи</legend>
 <fieldset>
 
     <div class="control-group">

@@ -108,7 +108,6 @@ class Business_obj_repository extends EntityRepository
      */
     public function get_common_classes()
     {
-
         $qb = $this->_em->createQueryBuilder();
 
         $query = $qb->select('c')
@@ -123,7 +122,6 @@ class Business_obj_repository extends EntityRepository
      */
     public function get_common_class_fields($ids = NULL)
     {
-
         $qb = $this->_em->createQueryBuilder();
 
         if (empty($ids)) {
@@ -146,7 +144,6 @@ class Business_obj_repository extends EntityRepository
      */
     public function get_instances()
     {
-
         $qb = $this->_em->createQueryBuilder();
         $query = $qb->select('c')
             ->from('Entities\instance', 'c')
@@ -221,7 +218,6 @@ class Business_obj_repository extends EntityRepository
      */
     public function read_common_class($id)
     {
-
         return $this->_em->find('Entities\common_class', $id);
     }
 
@@ -230,7 +226,6 @@ class Business_obj_repository extends EntityRepository
      */
     public function read_instance($id)
     {
-
         return $this->_em->find('Entities\instance', $id);
     }
 
@@ -335,37 +330,38 @@ class Business_obj_repository extends EntityRepository
         $obj->loc_name = $loc_name;
         $adds = [];
         //add
-       if(!empty($ids)) {
-           foreach ($ids as $i) {
-               $f = $this->_em->getReference('Entities\Common_class_field', $i);
-               if (!$obj->fields->contains($f)) {
-                   $obj->fields->add($f);
-                   array_push($adds, $i);
-               }
-           }
+        if (!empty($ids)) {
+            foreach ($ids as $i) {
+                $f = $this->_em->getReference('Entities\Common_class_field', $i);
+                if (!$obj->fields->contains($f)) {
+                    $obj->fields->add($f);
+                    array_push($adds, $i);
+                }
+            }
 
-           //remove
-           foreach ($obj->fields as $f) {
-               if (array_search($f->id, $ids) === FALSE && array_search($f->id, $adds) === FALSE) {
-                   if (!empty($f->id)) $obj->fields->removeElement($f);
-               }
-           }
+            //remove
+            foreach ($obj->fields as $f) {
+                if (array_search($f->id, $ids) === FALSE && array_search($f->id, $adds) === FALSE) {
+                    if (!empty($f->id)) $obj->fields->removeElement($f);
+                }
+            }
 
-           //sort
-           $obj = $this->read_common_class($id);
-           foreach ($obj->links as $l) {
-               $x = count($ids);
-               foreach ($ids as $i) {
-                   if ($i == $l->__field->id) {
-                       $l->order = $x;
-                       break;
-                   }
-                   $x--;
-               }
-           }
-       }
+            //sort
+            foreach ($obj->links as $l) {
+                $x = count($ids);
+                foreach ($ids as $i) {
+                    if ($i == $l->__field->id) {
+                        $l->order = $x;
+                        break;
+                    }
+                    $x--;
+                }
+            }
+        }
 
         $this->_em->persist($obj);
+
+        $this->_em->getConnection()->beginTransaction();
         try {
             $this->_em->flush();
         } catch (\Exception $e) {
@@ -373,31 +369,50 @@ class Business_obj_repository extends EntityRepository
             if (stripos($this->last_error, 'duplicate') != FALSE) {
                 $this->last_error = self::$UNIQUE_NAME;
             }
+            $this->_em->getConnection()->rollback();
+            $this->_em->close();
             return FALSE;
         }
+
+        $this->_em->refresh($obj);
+
+        //insert links to instances
+        if (!empty($adds)) {
+            $inst_upd = $this->get_view_instances($obj->name);
+            foreach ($inst_upd as $i_u) {
+                $inst = $this->_em->getReference('Entities\Instance', $i_u->id);
+                foreach ($obj->links as $l) {
+                    if (array_search($l->__field->get_id(), $adds) !== FALSE) {
+                        $v = new Entities\Instance_value();
+                        $v->value = '';
+                        $v->link = $this->_em->getReference('Entities\Common_class_field_link', $l->id);
+                        $v->instance = $inst;
+                        $this->_em->persist($v);
+                    }
+                }
+            }
+            try {
+                $this->_em->flush();
+            } catch (\Exception $e) {
+                $this->last_error = $e->getMessage();
+                $this->_em->getConnection()->rollback();
+                $this->_em->close();
+                return FALSE;
+            }
+        }
+        $this->_em->getConnection()->commit();
         return TRUE;
     }
 
     public function update_instance($id, $ids)
     {
         $obj = $this->read_instance($id);
-
         foreach ($obj->fields as $item) {
             if (isset($ids[$item->id])) {
                 $val = $ids[$item->id];
                 $item->value = $val;
             }
         }
-
-        //$fields = [];
-        /*foreach($ids as $i=>$val) {
-            $fields[$i] = $this->_em->getReference('Entities\Instance_value', $i);
-            //$fields[$i] = $val;
-        }*/
-
-
-        //$obj->setFields($fields);
-        //var_dump($obj->fields);
         $this->_em->persist($obj);
         try {
             $this->_em->flush();
