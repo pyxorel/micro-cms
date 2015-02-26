@@ -21,6 +21,10 @@ class Common_class_field_link {
 	 */
 	public $order;
 	/**
+	 * @Column(type="string", name="rules")
+	 */
+	public $rules;
+	/**
 	 *
 	 * @ManyToOne(targetEntity="Common_class", inversedBy="links")
 	 * @JoinColumn(name="id_com_class", referencedColumnName="id", nullable=FALSE)

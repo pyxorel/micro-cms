@@ -4,7 +4,7 @@
 <script type="text/javascript">
     $('li.active').removeClass();
     $('#preview-menu-buss').addClass('active');
-    $('#instnce').addClass('active');
+    $('#inst').addClass('active');
 </script>
 
 <div id="wrap">

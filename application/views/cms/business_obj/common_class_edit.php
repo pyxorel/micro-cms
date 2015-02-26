@@ -56,9 +56,10 @@ echo form_input(['name'=>'order', 'id'=>'order', 'type'=>'hidden']);
         foreach ($obj->links as $link):
             foreach ($fields as $item): ?>
                 <?php if ($link->__field->id == $item->id): ?>
-                    <div id_input="<?= $item->id ?>"><a href="#" class="up" id_input="<?= $item->id ?>"><span class="icon-arrow-up" style="display: inline-block;"></span></a>
-                        <a href="#" class="down" id_input="<?= $item->id ?>"><span style="display: inline-block;" class="icon-arrow-down"></span></a>
-                        <label class="checkbox"  style="display: inline-block;"><?= form_checkbox("fields[]", $item->id, TRUE, "id=\"ids\""); ?><?= $item->name; ?></label>
+                    <div id_input="<?= $item->id ?>">
+                        <a href="#" class="up" id_input="<?= $item->id ?>" title="Вверх"><span class="icon-arrow-up" style="display: inline-block;"></span></a>
+                        <a href="#" class="down" id_input="<?= $item->id ?>" title="Вниз"><span style="display: inline-block;" class="icon-arrow-down"></span></a>
+                        <label class="checkbox"  style="display: inline-block;"><?= form_checkbox("fields[]", $item->id, TRUE, "id=\"ids\""); ?><?= $item->name . " ($item->type)" ?></label>
                     </div>
                     <?php $has[$item->id] = $item->name; break; ?>
                 <?php endif ?>
@@ -68,7 +69,7 @@ echo form_input(['name'=>'order', 'id'=>'order', 'type'=>'hidden']);
                 <?php if (array_key_exists($item->id, $has)===FALSE): ?>
             <div id_input="<?= $item->id ?>"><a href="#" class="up" id_input="<?= $item->id ?>"><span class="icon-arrow-up" style="display: inline-block;"></span></a>
                 <a href="#" class="down" id_input="<?= $item->id ?>"><span style="display: inline-block;" class="icon-arrow-down"></span></a>
-                <label class="checkbox"  style="display: inline-block;"><?= form_checkbox("fields[]", $item->id, FALSE, "id=\"ids\""); ?><?= $item->name; ?></label>
+                <label class="checkbox"  style="display: inline-block;"><?= form_checkbox("fields[]", $item->id, FALSE, "id=\"ids\""); ?><?= $item->name  . " ($item->type)"; ?></label>
             </div>
                 <?php endif ?>
         <?php endforeach;?>

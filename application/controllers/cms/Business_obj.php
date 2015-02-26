@@ -28,21 +28,48 @@ class Business_obj extends BaseController
         parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_create', ['fields' => $this->_em->getRepository('Entities\Common_class_field')->get_common_class_fields()]);
     }
 
+    private function parse_common_class_form()
+    {
+        $rules_array = [];
+        $rules = $this->input->get_post('rules', TRUE);
+        foreach($rules as $k=>$item)
+        {
+            $rule = [];
+            if(isset($item['required']))
+            {
+                $rule['required'] = TRUE;
+            }
+            if(isset($item['min']))
+            {
+                $rule['min'] = $item['min'];
+            }
+            if(isset($item['max']))
+            {
+                $rule['max'] = $item['max'];
+            }
+            $rules_array[$k] = json_encode($rule);
+        }
+        return $rules_array;
+    }
+
     public function create_common_class()
     {
         $this->form_validation->set_rules('name', 'Служебное название', 'trim|required|max_length[50]|alpha_dash');
         $this->form_validation->set_rules('loc_name', 'Название', 'trim|required|max_length[50]');
+
         if ($this->form_validation->run() === FALSE) {
-            parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_create');
-        } else {
-            $rep = $this->_em->getRepository('Entities\Common_class');
-            if (!$rep->create_common_class($this->input->get_post('name', TRUE), $this->input->get_post('loc_name', TRUE), $this->input->get_post('fields', TRUE))) {
-                $this->form_validation->set_custom_error($rep->last_error);
-                parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_create');
-            } else {
-                redirect('cms/business_obj');
-            }
-        }
+           parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_create');
+       } else {
+           $rep = $this->_em->getRepository('Entities\Common_class');
+           if (!$rep->create_common_class($this->input->get_post('name', TRUE), $this->input->get_post('loc_name', TRUE), $this->input->get_post('fields', TRUE), $this->parse_common_class_form())) {
+               $this->form_validation->set_custom_error($rep->last_error);
+               parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_create');
+           } else {
+              redirect('cms/business_obj');
+           }
+       }
+
+
     }
 
     public function edit_common_class_view($id)

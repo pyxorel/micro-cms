@@ -59,10 +59,8 @@
                             </li>
                             <li id="field"><?= anchor('cms/Business_obj/fields', '<i class="icon" style="width:auto"> Поля</i>') ?>
                             </li>
-                            <li id="field"><?= anchor('cms/Business_obj/instances', '<i class="icon" style="width:auto"> Объекты</i>') ?>
+                            <li id="inst"><?= anchor('cms/Business_obj/instances', '<i class="icon" style="width:auto"> Объекты</i>') ?>
                             </li>
-
-
                         </ul>
                     </li>
                 </ul>

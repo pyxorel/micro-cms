@@ -9,7 +9,7 @@ class Paginator
     /**
      * Кол-во элементов на странице
      */
-    const SIZE = 20;
+    const SIZE = 30;
     private $count = 0;
     private $size = 0;
     private $page = 0;

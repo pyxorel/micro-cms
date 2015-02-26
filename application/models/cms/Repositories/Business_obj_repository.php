@@ -175,12 +175,13 @@ class Business_obj_repository extends EntityRepository
 
     private function get_operator($value)
     {
-        switch($value[0])
-        {
-            case '>': return '>';
-            case '<': return '<';
-            default: return '=';
-        }
+       if (preg_match('/([>|<]=?)?(.+)/', $value, $matches)!==FALSE)
+       {
+           if(isset($matches[1]) && isset($matches[2]))
+               return ['op'=>!empty($matches[1]) ? $matches[1] : '=', 'val'=>$matches[2]];
+       }
+
+        return ['op'=> '=', 'val'=>$value];
     }
 
     /**
@@ -201,8 +202,8 @@ class Business_obj_repository extends EntityRepository
                 if($f_db[$k]->type=='int' || $f_db[$k]->type=='decimal')
                 {
                     $op = $this->get_operator($v);
-                    $v = trim($v, "<>");
-                    $query = $query->andWhere("(CAST(i$x.value as decimal) $op :f_value$x AND i$x.field_name=:f_name$x)")->setParameter("f_name$x", $k)->setParameter("f_value$x", $v);
+
+                    $query = $query->andWhere("(CAST(i$x.value as decimal) {$op['op']} :f_value$x AND i$x.field_name=:f_name$x)")->setParameter("f_name$x", $k)->setParameter("f_value$x", $op['val']);
                 }
                 else
                 {
@@ -294,7 +295,7 @@ class Business_obj_repository extends EntityRepository
         return $this->_em->find('Entities\common_class_field', $id);
     }
 
-    public function create_common_class($name, $loc_name, $ids)
+    public function create_common_class($name, $loc_name, $ids, $rules)
     {
         $obj = new Entities\Common_class();
         $obj->name = $name;
@@ -307,6 +308,7 @@ class Business_obj_repository extends EntityRepository
         $obj->setFields($fields);
 
         $this->_em->persist($obj);
+        $this->_em->getConnection()->beginTransaction();
         try {
             $this->_em->flush();
         } catch (\Exception $e) {
@@ -314,14 +316,36 @@ class Business_obj_repository extends EntityRepository
             if (stripos($this->last_error, 'duplicate') != FALSE) {
                 $this->last_error = self::$UNIQUE_NAME;
             }
+            $this->_em->getConnection()->rollback();
+            $this->_em->close();
             return FALSE;
         }
+
+        $this->_em->refresh($obj);
+
+        foreach ($obj->links as $l) {
+            $id = $l->__field->get_id();
+            if (array_key_exists($id, $rules) !== FALSE) {
+                $l->rules = $rules[$id];
+                $this->_em->persist($obj);
+            }
+        }
+
+        try {
+            $this->_em->flush();
+        } catch (\Exception $e) {
+            $this->last_error = $e->getMessage();
+            $this->_em->getConnection()->rollback();
+            $this->_em->close();
+            return FALSE;
+        }
+
+        $this->_em->getConnection()->commit();
         return TRUE;
     }
 
     public function create_common_class_field($name, $loc_name, $type, $extra, $unit)
     {
-
         $obj = new Entities\Common_class_field();
         $obj->name = $name;
         $obj->type = $type;
