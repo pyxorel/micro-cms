@@ -493,7 +493,6 @@ $config['time_reference'] = 'local';
 */
 $config['rewrite_short_tags'] = FALSE;
 
-
 /*
 |--------------------------------------------------------------------------
 | Reverse Proxy IPs
@@ -511,7 +510,6 @@ $config['rewrite_short_tags'] = FALSE;
 | Array:		array('10.0.1.200', '192.168.5.0/24')
 */
 $config['proxy_ips'] = '';
-
 //---------------------------------------
 
 //URI путь к файлам 
@@ -528,21 +526,10 @@ $config['path_tmb_res'] = APPPATH . 'upload' . '/' . '.tmb_' . DIRECTORY_SEPARAT
 //путь к временным файлам
 $config['path_tmp'] = APPPATH . 'upload' . DIRECTORY_SEPARATOR . '.tmp' . DIRECTORY_SEPARATOR;
 
-//путь к файлам пользовательский объектов
-$config['path_user_obj'] = APPPATH . 'upload' . DIRECTORY_SEPARATOR . '.cms_user_objs' . DIRECTORY_SEPARATOR;
-
 //размеры миниатюр для галлереи и т.д.
 $config['tmb_size'] = array('75_75', '100_150', '400_300');
 //название приложения
 $config['app_name'] = 'MicroCMS by Fourhands.su';
-
-//данные для счетчика google
-$config['analytic_google'] = './application/cache/seo_analytic/a_google';
-//данные для счетчика yandex
-$config['analytic_yandex'] = './application/cache/seo_analytic/a_yandex';
-
-//адрес для сброса пароля
-$config['email_reset_pwd'] = '';
 $config['route_site'] = '/';
 
 //путь к шаблонам

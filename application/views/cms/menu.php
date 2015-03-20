@@ -20,8 +20,9 @@
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span>
-                <span class="icon-bar"></span> </a> <a class="brand" href="#" id="logo">MicroCMS</a>
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span>
+                <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+            <a class="brand" href="#" id="logo">MicroCMS</a>
 
             <div class="nav-collapse collapse">
                 <ul class="nav acc">
@@ -35,17 +36,6 @@
                     </li>
                     <li id="template"><?= anchor('cms/template', '<i class="icon-file-alt" style="width:auto"> Шаблоны страниц</i>') ?>
                     </li>
-
-                    <!--<li class="dropdown" id="preview-menu-seo"><a class="dropdown-toggle" data-toggle="dropdown"
-                                                                  href="#"><i
-                                class="icon-bar-chart" style="width: auto">
-                                SEO</i><b class="caret"></b> </a>
-                        <ul class="dropdown-menu">
-                            <li id="counter"><?= anchor('cms/analytic', '<i class="icon-dashboard" style="width:auto"> Счетчики</i>') ?>
-                            </li>
-                        </ul>
-                    </li>-->
-
                     <li class="dropdown" id="preview-menu-buss">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-suitcase" style="width: auto"> Бизнес сущности</i><b class="caret"></b>
                         </a>
@@ -55,6 +45,14 @@
                             <li id="field"><?= anchor('cms/Business_obj/fields', '<i class="icon" style="width:auto"> Поля</i>') ?>
                             </li>
                             <li id="inst"><?= anchor('cms/Business_obj/instances', '<i class="icon" style="width:auto"> Объекты</i>') ?>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="preview-menu-seo">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-bar-chart" style="width: auto"> Разное</i><b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li id="config"><?= anchor('cms/config', '<i class="icon-dashboard" style="width:auto"> Конфигурация</i>') ?>
                             </li>
                         </ul>
                     </li>

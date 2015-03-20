@@ -7,7 +7,6 @@
     $(document).ready(function () {
         $('.navbar li.active').removeClass();
         $('#page').addClass('active');
-
         $('#search-highlight').highlight('<?= $s_text = isset($s_text) ? $s_text : NULL; ?>');
     });
 </script>
