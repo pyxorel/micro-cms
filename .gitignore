@@ -1,3 +1,4 @@
 .idea
 .settings
 /__test_cms.iml
+/application/cache

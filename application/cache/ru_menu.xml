@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<menus>
-    <menu name="Корень сайта" route="/" id="1" isService="1" sName="root" template="_default.tpl" sort="priority" date="0000-00-00" count_elem="0">
-        <menu name="Верхнее меню" route="/" id="23" isService="1" sName="top_menu" template="_default.tpl" sort="priority" date="" count_elem="0"/>
-        <menu name="Нижнее меню" route="/" id="36" isService="1" sName="bottom_menu" template="_default.tpl" sort="priority" date="" count_elem="0"/>
-    </menu>
-</menus>
