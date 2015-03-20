@@ -1,4 +1,4 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 /*
  | -------------------------------------------------------------------------
 | Hooks
@@ -12,10 +12,10 @@
 
 
 /*$hook['pre_system'][] = array(
-		'class' => 'PHP_Fatal_Error',
-		'function' => 'set_handler',
-		'filename' => 'php_fatal_error.php',
-		'filepath' => 'hooks');*/
+    'class' => 'PHP_Fatal_Error',
+    'function' => 'set_handler',
+    'filename' => 'php_fatal_error.php',
+    'filepath' => 'hooks');*/
 
 
 /* End of file hooks.php */
