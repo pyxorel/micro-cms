@@ -33,14 +33,14 @@ class Template_model extends CI_Model
     public function isValid()
     {
         $this->form_validation->set_rules('name', 'Название', 'trim|required|max_length[50]|alpha_dash');
-		$this->form_validation->set_rules('old_name', '', 'trim|required|max_length[50]|alpha_dash');
+        $this->form_validation->set_rules('old_name', '', 'trim|required|max_length[50]|alpha_dash');
         $this->form_validation->set_rules('text', 'Текст шаблона', 'required');
         return true;
     }
 
     public function get_templates()
     {
-        $files = Utils::list_files($this->config->item('path_template'), TRUE);
+        $files = Utils::list_files($this->config->item('path_template'), TRUE, 'tpl');
         ksort($files, SORT_NATURAL | SORT_FLAG_CASE);
         return $files;
     }
@@ -68,20 +68,15 @@ class Template_model extends CI_Model
     public function update_template($name, $old_name, $text)
     {
         $this->clean_last_error();
-		if($old_name!=$name)
-		{
-			if ($this->valid_unique_name($name)===FALSE)
-			{
-				$this->last_error = self::$TEMPLATE_EXISTS;
-				return FALSE;
-			}
-			//@file_put_contents($this->config->item('path_template') . $name . self::$TEMPLATE_EXT, $text);
-			@unlink($this->config->item('path_template') . $old_name . self::$TEMPLATE_EXT);
-		}
-		
-		@file_put_contents($this->config->item('path_template') . $name . self::$TEMPLATE_EXT, $text);
-		
-		return TRUE;
+        if ($old_name != $name) {
+            if ($this->valid_unique_name($name) === FALSE) {
+                $this->last_error = self::$TEMPLATE_EXISTS;
+                return FALSE;
+            }
+            @unlink($this->config->item('path_template') . $old_name . self::$TEMPLATE_EXT);
+        }
+        @file_put_contents($this->config->item('path_template') . $name . self::$TEMPLATE_EXT, $text);
+        return TRUE;
     }
 
     public function delete_template($name)

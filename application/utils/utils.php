@@ -6,31 +6,35 @@
 class Utils
 {
 
-    public static function array_group_by(array $arr, callable $key_selector, $name) {
+    public static function array_group_by(array $arr, callable $key_selector, $name)
+    {
         $result = array();
         foreach ($arr as $i) {
-            $key = call_user_func($key_selector, ['i'=>$i, 'name'=>$name]);
+            $key = call_user_func($key_selector, ['i' => $i, 'name' => $name]);
             $result[$key][] = $i;
         }
         return $result;
     }
 
-    public static function array_sort_by(array & $arr, callable $func) {
+    public static function array_sort_by(array & $arr, callable $func)
+    {
         usort($arr, $func);
     }
 
-    public static function array_sort_key_by(array & $arr, callable $func) {
+    public static function array_sort_key_by(array & $arr, callable $func)
+    {
         uksort($arr, $func);
     }
 
     public static function crc32_file($file)
     {
-        if(file_exists($file) && is_file($file))
+        if (file_exists($file) && is_file($file))
             return crc32(file_get_contents($file));
         return NULL;
     }
 
-    public static function is_json($string) {
+    public static function is_json($string)
+    {
         return !empty($string) && is_string($string) && is_array(json_decode($string, true)) && json_last_error() == 0;
     }
 
@@ -55,7 +59,7 @@ class Utils
         $rus = array('ё', 'ж', 'ц', 'ч', 'ш', 'щ', 'ю', 'я', 'Ё', 'Ж', 'Ц', 'Ч', 'Ш', 'Щ', 'Ю', 'Я');
         $lat = array('yo', 'zh', 'tc', 'ch', 'sh', 'sh', 'yu', 'ya', 'YO', 'ZH', 'TC', 'CH', 'SH', 'SH', 'YU', 'YA');
         $str = str_replace($rus, $lat, $str);
-        $str = Utils::mb_strtr ($str,
+        $str = Utils::mb_strtr($str,
             "АБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬЭабвгдезийклмнопрстуфхъыьэ",
             "ABVGDEZIJKLMNOPRSTUFH_I_Eabvgdezijklmnoprstufh_i_e");
 
@@ -64,10 +68,11 @@ class Utils
 
     private static function mb_strtr($str, $from, $to)
     {
-        return str_replace(  Utils::mb_str_split($from), Utils::mb_str_split($to), $str);
+        return str_replace(Utils::mb_str_split($from), Utils::mb_str_split($to), $str);
     }
 
-    private static function mb_str_split($str) {
+    private static function mb_str_split($str)
+    {
         return preg_split('~~u', $str, null, PREG_SPLIT_NO_EMPTY);;
     }
 
@@ -152,7 +157,7 @@ class Utils
         $url = substr($url, $start, strlen($url) - $start);
         return base64_decode($url);
     }
-	
+
     /**
      * Recursively delete a directory
      */
@@ -193,16 +198,26 @@ class Utils
         return $dirs;
     }
 
-    public static function list_files($dir_name, $fill_key = FALSE)
+    public static function list_files($dir_name, $fill_key = FALSE, $ext = NULL)
     {
         $files = [];
 
         foreach (scandir($dir_name) as $item) {
             if (is_file($dir_name . $item)) {
-                if (!$fill_key)
-                    array_push($files, $item);
-                else {
-                    $files[$item] = $item;
+                if (!empty($ext)) {
+                    if (pathinfo($dir_name . $item, PATHINFO_EXTENSION) == $ext) {
+                        if (!$fill_key)
+                            array_push($files, $item);
+                        else {
+                            $files[$item] = $item;
+                        }
+                    }
+                } else {
+                    if (!$fill_key)
+                        array_push($files, $item);
+                    else {
+                        $files[$item] = $item;
+                    }
                 }
             }
         }

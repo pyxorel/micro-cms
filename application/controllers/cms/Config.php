@@ -8,7 +8,6 @@ class Config extends BaseController
         parent::partialViewResult('cms/cms_master', 'cms/config/index', ['config' => ['email'=>$this->config->config['email']]]);
     }
 
-
     function save(){
         $this->config->load('email', TRUE);
         $this->load->library('MY_config');
