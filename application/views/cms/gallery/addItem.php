@@ -56,7 +56,7 @@
 
 <?php
 echo validation_errors('<span class="error">', '</span>');
-echo form_open('cms/gallery/addItem', "id=\"formAddItem\" class=\"form-horizontal well\"");
+echo form_open('cms/gallery/addItem', "id=\"formAddItem\" class=\"form-horizontal\"");
 echo form_hidden('id_gallery', $gallery);
 ?>
 

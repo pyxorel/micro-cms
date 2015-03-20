@@ -15,7 +15,7 @@
 <script type="text/javascript" charset="utf-8">
     $(function () {
 
-        $(window).keypress(function(event) {
+        $(window).keypress(function (event) {
             if (!(event.which == 115 && event.ctrlKey) && !(event.which == 19)) return true;
             $('#form').submit();
             event.preventDefault();
@@ -42,7 +42,7 @@
                 name: {
                     required: true,
                     maxlength: 50,
-					regex: /^[0-9a-z-_]+$/
+                    regex: /^[0-9a-z-_]+$/
                 },
                 text: {
                     required: true
@@ -66,12 +66,11 @@
 
     <div class="control-group">
         <label class="control-label" for="text">Текст шаблона</label>
-        <textarea name="text" cols="7" rows="25" id="text" ><?= set_value('text')?></textarea>
+        <textarea name="text" cols="7" rows="25" id="text"><?= set_value('text') ?></textarea>
     </div>
 
     <div class="pull-right">
-        <input type="submit" value="Сохранить и выйти (Ctrl+S)" id="save" name="save"
-               class="btn btn-primary"/>
+        <input type="submit" value="Сохранить и выйти (Ctrl+S)" id="save" name="save" class="btn btn-primary"/>
         <?= anchor('cms/template', 'Отмена', "class=\"btn\""); ?>
     </div>
 </fieldset>

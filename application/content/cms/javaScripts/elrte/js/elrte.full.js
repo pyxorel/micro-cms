@@ -6546,8 +6546,8 @@ elRTE.prototype.ui.prototype.buttons.image = function(rte, name) {
 				dialog : {
 					autoOpen  : false,
 					width     : 570,
-					height:   650,
-					position  : 'top',
+					height    : 650,
+					modal     : true,
 					title     : rte.i18n('Image'),
 					resizable : true,
 					open      : function() {
@@ -6971,6 +6971,7 @@ elRTE.prototype.ui.prototype.buttons.link = function(rte, name) {
 			dialog : {
 				width : 'auto',
 				width : 580,
+				modal : true,
 				title : this.rte.i18n('Link')
 				
 			}

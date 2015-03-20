@@ -10,6 +10,7 @@ class Menu_model extends CI_Model
     const TableName = 'menu';
     const TableNameLocs = 'menu_locs';
     const TableNameTree = 'menu_tree';
+    const TableNameMenuInstance = 'menu_instance';
     const TableNameMenuPage = 'menu_document';
     const TableNameMenuGallery = 'menu_gallery';
     const VIEW_MENU_LOCS = 'view_menu_locs';
@@ -47,7 +48,7 @@ class Menu_model extends CI_Model
             $this->db->where('lang_code', $lang_code);
         }
 
-        $query = $this->db->order_by('id', 'asc');
+        $query = $this->db->order_by('name', 'asc');
 
         if($first){
             return $query->first_row();
@@ -74,7 +75,7 @@ class Menu_model extends CI_Model
         $query = $this->db->where('IDMenu', $id);
 
         if (!empty($lang_code)) {
-            //$this->db->distinct();
+
             $this->db->where('lang_code', $lang_code);
         }
 
@@ -84,7 +85,16 @@ class Menu_model extends CI_Model
 
         return $query->get()->result();
     }
-	
+
+    public function get_instancesByMenuID($id)
+    {
+        $this->db->select('id_instance');
+        $this->db->from(self::TableNameMenuInstance);
+        $query = $this->db->where('id_menu', $id);
+
+        return $query->get()->result();
+    }
+
     public function get_galleryByMenuID($id)
     {
         $this->load->database();
@@ -109,7 +119,7 @@ class Menu_model extends CI_Model
             $tree->addItem(self::ROOT_ID, 0, self::read_menu(self::ROOT_ID));
         }
 
-        $this->db->select('id, name, head, lang_code, id_lang');
+        $this->db->select('id, name, head, lang_code, id_lang, sort, date, count_elem, is_service');
         $this->db->from(self::VIEW_MENU_LOCS);
         $this->db->join(self::TableNameTree, 'view_menu_locs.id = menu_tree.IDChild');
         $this->db->where('menu_tree.IDParent', $id);
@@ -135,6 +145,26 @@ class Menu_model extends CI_Model
             $tree->addItem("g$item->id", $includeRoot ? self::ROOT_ID : 0, $item);
         }
 
+        $id_inst = $this->get_instancesByMenuID($id);
+        $this->load->library('doctrinelib');
+        $this->_em = $this->doctrinelib->get_entityManager();
+
+        $ids = [];
+        foreach($id_inst as $item) {
+            array_push($ids, $item->id_instance);
+        }
+
+        if(!empty($ids)) {
+            $instances = $this->_em->getRepository('Entities\Instance')->get_view_instances('sewerage', NULL, NULL, NULL, $ids);
+
+            foreach ($instances as $item) {
+                $std_class = new stdClass();
+                $std_class->id = $item->id;
+                $std_class->name = $item->fields['name']['value'];
+                $tree->addItem("o$item->id", $includeRoot ? self::ROOT_ID : 0, $std_class);
+            }
+        }
+
         return $tree;
     }
 
@@ -153,7 +183,7 @@ class Menu_model extends CI_Model
         while (!empty($list)) {
             $last = array_shift($list);
 
-            $this->db->select('id, name, url, is_service, service_name, priority, head, lang_code, id_lang, template');
+            $this->db->select('id, name, url, is_service, service_name, priority, head, lang_code, id_lang, template, sort, date, count_elem');
             $this->db->from(self::VIEW_MENU_LOCS);
             $this->db->join(self::TableNameTree, self::VIEW_MENU_LOCS . '.id = menu_tree.IDChild');
             $this->db->where('menu_tree.IDParent', $last);
@@ -191,6 +221,18 @@ class Menu_model extends CI_Model
         return TRUE;
     }
 
+    public function add_instance($idMenu, $idInsts)
+    {
+        $this->db->trans_start();
+        foreach ($idInsts as $item) {
+            if (!$this->db->insert(self::TableNameMenuInstance, array('id_menu' => $idMenu, 'id_instance' => $item))) {
+                return $this->db->error()['message'];
+            }
+        }
+        $this->db->trans_complete();
+        return TRUE;
+    }
+
     public function add_gallereis($idMenu, $idGallereis)
     {
         $this->db->trans_start();
@@ -217,10 +259,11 @@ class Menu_model extends CI_Model
         return $this->form_validation->run();
     }
 
-    public function create_menu($idParent, $name, $isService, $url, $serviceName, $data, $template)
+    public function create_menu($idParent, $name, $isService, $url, $serviceName, $data, $template, $date=null, $sort= null, $count_elem=null)
     {
 
-        $insert_data = ['name' => $name, 'is_service' => $isService, 'url' => $url, 'service_name' => $serviceName, 'template'=>$template];
+        $insert_data = ['name' => $name, 'is_service' => $isService, 'url' => $url, 'service_name' => $serviceName, 'template'=>$template,
+        'date'=>$date, 'sort'=>$sort, 'count_elem'=>$count_elem];
         $insert_data['priority'] = $this->db->select_max('priority')->from(self::TableName)->get()->row()->priority + 1;
 
         $this->db->trans_start();
@@ -276,7 +319,7 @@ class Menu_model extends CI_Model
     }
 
 
-    public function update_menu($id, $name = null, $isService = null, $url = null, $serviceName = null, $data, $template)
+    public function update_menu($id, $name = null, $isService = null, $url = null, $serviceName = null, $data=null, $template=null, $date=null, $sort= null, $count_elem=null)
     {
         $this->clean_last_error();
         $this->db->trans_start();
@@ -286,6 +329,9 @@ class Menu_model extends CI_Model
         $this->db->set('is_service', $isService);
         $this->db->set('service_name', $serviceName);
         $this->db->set('template', $template);
+        $this->db->set('date', $date);
+        $this->db->set('sort', $sort);
+        $this->db->set('count_elem', $count_elem);
         $this->db->where('id', $id);
 
         if (!$this->db->update(self::TableName)) {
@@ -355,6 +401,16 @@ class Menu_model extends CI_Model
         $this->db->where('IDMenu', $idMenu);
         $this->db->where('IDDoc', $idPage);
         if (!$this->db->delete(self::TableNameMenuPage)) {
+            return $this->db->error()['message'];
+        }
+        return TRUE;
+    }
+
+    public function delete_linkMenuInstance($idMenu, $idInst)
+    {
+        $this->db->where('id_menu', $idMenu);
+        $this->db->where('id_instance', $idInst);
+        if (!$this->db->delete(self::TableNameMenuInstance)) {
             return $this->db->error()['message'];
         }
         return TRUE;

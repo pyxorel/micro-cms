@@ -282,6 +282,7 @@ switch (ENVIRONMENT)
 	define('VIEWPATH', $view_folder);
 	define('SMARTY_DIR', APPPATH . 'libs' . DIRECTORY_SEPARATOR . 'smarty' . DIRECTORY_SEPARATOR);
 	define('DOCTRINE_DIR', APPPATH . 'libs' . DIRECTORY_SEPARATOR . 'Doctrine' . DIRECTORY_SEPARATOR);
+	require_once APPPATH . 'libs/Doctrine/Common/ClassLoader.php';
 /*
  * --------------------------------------------------------------------
  * LOAD THE BOOTSTRAP FILE

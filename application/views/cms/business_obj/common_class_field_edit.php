@@ -32,8 +32,12 @@
             if ($(this).val() == 'link') {
                 $('#class_container').show();
                 //$('#extra').val($('#_class option:first-child').val());
+            } else if ($(this).val() == 'select') {
+                $('#extra_container').show();
+                $('#extra').attr('type', 'text');
             }
             else {
+                $('#extra_container').hide();
                 $('#class_container').hide();
                 $('#extra').val('');
                 //$('#_class option:first-child').attr("selected", "selected");
@@ -81,7 +85,10 @@ echo form_hidden('id', isset($obj) ? $obj->id : set_value('id'));
         <?= form_dropdown('class', $classes, isset($obj) ? [$obj->extra] : set_value('type'), 'class="input-medium" id="_class"'); ?>
     </div>
 
-    <?= form_input(['name' => 'extra', 'type' => 'hidden'], isset($obj) ? $obj->extra : set_value('extra'), 'class="" id="extra"'); ?>
+    <div class="control-group" id="extra_container" style="display: none;">
+        <label class="control-label" for="unit">Значения ( , - разделитель )</label>
+        <?= form_input(['name' => 'extra', 'type' => 'text'], isset($obj) ? $obj->extra : set_value('extra'), 'class="" id="extra"'); ?>
+    </div>
 
     <div class="control-group">
         <label class="control-label" for="unit">Единица</label>
@@ -89,10 +96,8 @@ echo form_hidden('id', isset($obj) ? $obj->id : set_value('id'));
     </div>
 
     <div class="pull-right">
-        <input type="submit" value="Применить" id="ok" name="ok"
-               class="btn btn-primary"/> <input type="submit"
-                                                value="Сохранить и выйти" id="save" name="save"
-                                                class="btn btn-primary"/>
+        <input type="submit" value="Применить" id="ok" name="ok" class="btn btn-primary"/>
+        <input type="submit" value="Сохранить и выйти" id="save" name="save" class="btn btn-primary"/>
         <?= anchor('cms/business_obj/fields', 'Отмена', "class=\"btn\""); ?>
     </div>
 </fieldset>

@@ -75,10 +75,8 @@ echo form_hidden('id', isset($resource) ? $resource[DEFAULT_LANG_CODE]->id : set
         <?php endforeach ?>
     </div>
     <div class="pull-right">
-        <input type="submit" value="Применить" id="ok" name="ok"
-               class="btn btn-primary"/> <input type="submit"
-                                                value="Сохранить и выйти" id="save" name="save"
-                                                class="btn btn-primary"/>
+        <input type="submit" value="Применить" id="ok" name="ok" class="btn btn-primary"/>
+        <input type="submit" value="Сохранить и выйти" id="save" name="save" class="btn btn-primary"/>
 
         <?= anchor('cms/resource', 'Отмена', "class=\"btn\""); ?>
     </div>

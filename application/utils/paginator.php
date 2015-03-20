@@ -45,7 +45,7 @@ class Paginator
 		if($config===NULL)
 		{
 			$config['uri_segment'] = 4;
-			$config['cur_tag_open'] = "<li class=\"active\"><a>";
+			$config['cur_tag_open'] = "<li class='active'><a>";
 			$config['cur_tag_close'] = '</a></li>';
 			
 			$config['num_tag_open'] = '<li>';
@@ -61,8 +61,7 @@ class Paginator
 			$config['last_tag_open'] = '';
 			$config['last_tag_close'] = '';
 
-
-            $config['first_link'] = '';//1;
+            $config['first_link'] = '1';//1;
 			$config['first_tag_open'] = '';
 			$config['first_tag_close'] = '';
 
@@ -79,10 +78,15 @@ class Paginator
 		$config['base_url'] = base_url($site_url);
 		$config['total_rows'] = $paginator->getCountRow();
 		$config['per_page'] = $paginator->getSize();
+        $config['cur_page'] = $paginator->getPage();
 		$config['num_links'] = 3;
         $config['reuse_query_string'] = TRUE;
-		
-		$t->pagination->initialize($config);
+        //$config['use_page_numbers'] = TRUE;
+        $config['attributes']['rel'] = FALSE;
+
+
+
+        $t->pagination->initialize($config);
 	}
 
     function Paginator($page = 0, $size = self::SIZE)
@@ -112,6 +116,11 @@ class Paginator
     }
 
     public function getBeginElement()
+    {
+        return $this->page;
+    }
+
+    public function getPage()
     {
         return $this->page;
     }

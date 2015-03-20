@@ -1,4 +1,3 @@
-
 <body>
 <?php include_once 'application/views/cms/page/wysiwyg.php' ?>
 <script type="text/javascript" charset="utf-8">
@@ -9,52 +8,58 @@
             $('<div />').dialogelfinder({
                 url: '<?= base_url('application/libs/elfinder/php/connector.php')?>',
                 defaultView: elfinder_opt.defaultView,
-				useBrowserHistory: elfinder_opt.useBrowserHistory,
-				width: elfinder_opt.width,
-				lang : elfinder_opt.lang,
-				contextmenu : elfinder_opt.contextmenu,
-                uiOptions : elfinder_opt.uiOptions,
+                useBrowserHistory: elfinder_opt.useBrowserHistory,
+                width: elfinder_opt.width,
+                lang: elfinder_opt.lang,
+                contextmenu: elfinder_opt.contextmenu,
+                uiOptions: elfinder_opt.uiOptions,
                 commandsOptions: {
                     getfile: {
                         oncomplete: 'close'
                     }
                 },
                 getFileCallback: function (file) {
-					file_path =  file.url.replace('<?= base_url() ?>', '');
+                    file_path = file.url.replace('<?= base_url() ?>', '');
                     var input_id = $(link).attr('input_id');
                     input_id = input_id.replace(/([\[|\]])/g, '\\$1');
-                    $('#'+input_id).val(file_path);
-                }
-            });
-            return false;
-        });
-		
-        $(".add_img_tmb").click(function () {
-            var link = this;
-            $('<div />').dialogelfinder({
-                url: '<?= base_url('application/libs/elfinder/php/connector.php')?>',
-                defaultView: elfinder_opt.defaultView,
-				useBrowserHistory: elfinder_opt.useBrowserHistory,
-				width: elfinder_opt.width,
-				lang : elfinder_opt.lang,
-				contextmenu : elfinder_opt.contextmenu,
-                uiOptions : elfinder_opt.uiOptions,
-                commandsOptions: {
-                    getfile: {
-                        oncomplete: 'close'
-                    }
-                },
-                getFileCallback: function (file) {
-                    file_path =  file.url.replace('<?= base_url() ?>', '');
-                    var input_id = $(link).attr('input_id');
-                    input_id = input_id.replace(/([\[|\]])/g, '\\$1');
-                    $('#'+input_id).val(file_path);
+                    $('#' + input_id).val(file_path);
                 }
             });
             return false;
         });
 
-       $('#form').validate();
+        $(".add_img_tmb").click(function () {
+            var link = this;
+            $('<div />').dialogelfinder({
+                url: '<?= base_url('application/libs/elfinder/php/connector.php')?>',
+                defaultView: elfinder_opt.defaultView,
+                useBrowserHistory: elfinder_opt.useBrowserHistory,
+                width: elfinder_opt.width,
+                lang: elfinder_opt.lang,
+                contextmenu: elfinder_opt.contextmenu,
+                uiOptions: elfinder_opt.uiOptions,
+                commandsOptions: {
+                    getfile: {
+                        oncomplete: 'close'
+                    }
+                },
+                getFileCallback: function (file) {
+                    file_path = file.url.replace('<?= base_url() ?>', '');
+                    var input_id = $(link).attr('input_id');
+                    input_id = input_id.replace(/([\[|\]])/g, '\\$1');
+                    $('#' + input_id).val(file_path);
+                }
+            });
+            return false;
+        });
+
+        $("#form").validate({
+            rules: {
+                name: {
+                    regex: /^[0-9A-Za-z-_]+$/
+                },
+            }
+        });
 
     });
 
@@ -95,47 +100,47 @@
             <div class="tab-pane" id="tab<?= $lang->id ?>">
 
                 <div class="control-group">
-                    <label class="control-label" for="<?=$f_img?>">Изображение</label>
+                    <label class="control-label" for="<?= $f_img ?>">Изображение</label>
 
                     <div class="input-append">
                         <?= form_input($f_img, set_value($f_img), "id=\"$f_img\" class=\"input-xxlarge\" data-rule-maxlength=\"255\""); ?>
-                        <?= anchor('#', '<i class="icon-plus-sign"></i> Выбрать', "name=\"add\" id=\"add_$f_img\" input_id=\"$f_img\" class=\"btn add_img\"");?>
+                        <?= anchor('#', '<i class="icon-plus-sign"></i> Выбрать', "name=\"add\" id=\"add_$f_img\" input_id=\"$f_img\" class=\"btn add_img\""); ?>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label" for="<?=$f_img_tmb?>">Миниатюра</label>
+                    <label class="control-label" for="<?= $f_img_tmb ?>">Миниатюра</label>
 
                     <div class="input-append">
                         <?= form_input($f_img_tmb, set_value($f_img_tmb), "id=\"$f_img_tmb\" class=\"input-xxlarge\" data-rule-maxlength=\"255\""); ?>
-                        <?= anchor('#', '<i class="icon-plus-sign"></i> Выбрать', "name=\"add\" id=\"add_$f_img_tmb\" input_id=\"$f_img_tmb\" class=\"btn add_img_tmb\"");?>
+                        <?= anchor('#', '<i class="icon-plus-sign"></i> Выбрать', "name=\"add\" id=\"add_$f_img_tmb\" input_id=\"$f_img_tmb\" class=\"btn add_img_tmb\""); ?>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label" for="<?=$f_head?>">Заголовок «Title»</label>
-                    <input type="text" name="<?=$f_head?>" value="<?=set_value($f_head)?>" class="input-xxlarge" data-rule-required="true" data-rule-maxlength="255" id="<?=$f_head?>"/>
+                    <label class="control-label" for="<?= $f_head ?>">Заголовок «Title»</label>
+                    <input type="text" name="<?= $f_head ?>" value="<?= set_value($f_head) ?>" class="input-xxlarge" data-rule-required="true" data-rule-maxlength="255" id="<?= $f_head ?>"/>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label" for="<?=$f_s_content?>">Краткое описание</label>
+                    <label class="control-label" for="<?= $f_s_content ?>">Краткое описание</label>
                     <?= form_textarea(array('cols' => 7, 'rows' => 2, 'id' => $f_s_content, 'name' => $f_s_content, 'class' => 'input-xxlarg', 'value' => set_value($f_s_content)), NULL, 'data-rule-maxlength="1024"'); ?>
                 </div>
 
                 <div class="control-group">
                     <div id="wisiwig">
-                        <label class="control-label" for="<?=$f_content?>" style="font-size: 15px;">Содержание</label>
+                        <label class="control-label" for="<?= $f_content ?>" style="font-size: 15px;">Содержание</label>
                         <?= form_textarea(array('cols' => 20, 'rows' => 5, 'id' => $f_content, 'name' => $f_content, 'value' => set_value($f_content)), NULL, 'data-rule-required="true" data-rule-maxlength="65535"'); ?>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label" for="<?=$f_description?>">Мета-тег «description»</label>
+                    <label class="control-label" for="<?= $f_description ?>">Мета-тег «description»</label>
                     <?= form_textarea(array('cols' => 5, 'rows' => 2, 'id' => $f_description, 'name' => $f_description, 'value' => set_value($f_description)), NULL, 'data-rule-maxlength="255"'); ?>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label" for="<?=$f_keywords?>">Мета-тег «keywords»</label>
+                    <label class="control-label" for="<?= $f_keywords ?>">Мета-тег «keywords»</label>
                     <?= form_textarea(array('cols' => 10, 'rows' => 2, 'id' => $f_keywords, 'name' => $f_keywords, 'value' => set_value($f_keywords)), NULL, 'data-rule-maxlength="255"'); ?>
                 </div>
 
@@ -150,15 +155,12 @@
 
 
     <div class="controls">
-        <label
-            class="checkbox"> <?= form_checkbox('service', set_value('service') != null ? set_value('service') : 1, set_value('service')); ?>
-            Служебная страница
-        </label>
+        <label class="checkbox"> <?= form_checkbox('service', set_value('service') != null ? set_value('service') : 1, set_value('service')); ?>
+            Служебная страница </label>
     </div>
 
     <div class="pull-right">
-        <input type="submit" value="Сохранить и выйти" id="save" name="save"
-               class="btn btn-primary"/>
+        <input type="submit" value="Сохранить и выйти" id="save" name="save" class="btn btn-primary"/>
         <?= anchor('cms/page', 'Отмена', "class=\"btn\""); ?>
     </div>
 

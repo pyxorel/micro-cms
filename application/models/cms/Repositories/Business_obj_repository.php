@@ -31,7 +31,6 @@ class Business_obj_repository extends EntityRepository
         return $inst;
     }
 
-
     private function getFullSQL($query)
     {
         $sql = $query->getSql();
@@ -111,7 +110,7 @@ class Business_obj_repository extends EntityRepository
         $qb = $this->_em->createQueryBuilder();
 
         $query = $qb->select('c')
-            ->from('Entities\common_class', 'c')
+            ->from('Entities\Common_class', 'c')
             ->orderBy('c.name', 'ASC')->getQuery();
 
         return $query->getResult();
@@ -126,11 +125,11 @@ class Business_obj_repository extends EntityRepository
 
         if (empty($ids)) {
             $query = $qb->select('c')
-                ->from('Entities\common_class_field', 'c')
+                ->from('Entities\Common_class_field', 'c')
                 ->orderBy('c.name', 'ASC')->getQuery();
         } else {
             $query = $qb->select('c')
-                ->from('Entities\common_class_field', 'c')
+                ->from('Entities\Common_class_field', 'c')
                 ->andWhere('c.id IN (:ids)')
                 ->setParameter('ids', $ids)
                 ->orderBy('c.name', 'ASC')->getQuery();
@@ -139,25 +138,22 @@ class Business_obj_repository extends EntityRepository
         return $query->getResult();
     }
 
-
     private function get_common_class_fields_by_name($names)
     {
         $qb = $this->_em->createQueryBuilder();
         $query = $qb->select('c')
-                ->from('Entities\common_class_field', 'c')
-                ->andWhere('c.name IN (:ids)')
-                ->setParameter('ids', $names)
-                ->orderBy('c.name', 'ASC')->getQuery();
+            ->from('Entities\Common_class_field', 'c')
+            ->andWhere('c.name IN (:ids)')
+            ->setParameter('ids', $names)
+            ->orderBy('c.name', 'ASC')->getQuery();
 
         $result = [];
-        foreach ($query->getResult() as $item)
-        {
+        foreach ($query->getResult() as $item) {
             $result[$item->name] = $item;
         }
 
         return $result;
     }
-
 
     /**
      * @return Entities\Instance
@@ -166,28 +162,25 @@ class Business_obj_repository extends EntityRepository
     {
         $qb = $this->_em->createQueryBuilder();
         $query = $qb->select('c')
-            ->from('Entities\instance', 'c')
+            ->from('Entities\Instance', 'c')
             ->getQuery();
 
         return $query->getResult();
     }
 
-
     private function get_operator($value)
     {
-       if (preg_match('/([>|<]=?)?(.+)/', $value, $matches)!==FALSE)
-       {
-           if(isset($matches[1]) && isset($matches[2]))
-               return ['op'=>!empty($matches[1]) ? $matches[1] : '=', 'val'=>$matches[2]];
-       }
-
-        return ['op'=> '=', 'val'=>$value];
+        if (preg_match('/([>|<]=?)?(.+)/', $value, $matches) !== FALSE) {
+            if (isset($matches[1]) && isset($matches[2]))
+                return ['op' => !empty($matches[1]) ? $matches[1] : '=', 'val' => $matches[2]];
+        }
+        return ['op' => '=', 'val' => $value];
     }
 
     /**
      * @return Entities\Instance
      */
-    public function get_view_instances($class = NULL, $fields = null, $order = null, \Paginator $paginator = NULL)
+    public function get_view_instances($class = NULL, $fields = null, $order = null, \Paginator $paginator = NULL, $in_id = NULL)
     {
         $qb = $this->_em->createQueryBuilder();
         $query = $qb->select('i0.id')
@@ -199,14 +192,10 @@ class Business_obj_repository extends EntityRepository
             foreach ($fields as $k => $v) {
                 $query = $query->from('Entities\Instance_view', "i$x")->andWhere("i0.id = i$x");
 
-                if($f_db[$k]->type=='int' || $f_db[$k]->type=='decimal')
-                {
+                if ($f_db[$k]->type == 'int' || $f_db[$k]->type == 'decimal') {
                     $op = $this->get_operator($v);
-
                     $query = $query->andWhere("(CAST(i$x.value as decimal) {$op['op']} :f_value$x AND i$x.field_name=:f_name$x)")->setParameter("f_name$x", $k)->setParameter("f_value$x", $op['val']);
-                }
-                else
-                {
+                } else {
                     $query = $query->andWhere("(i$x.value LIKE :f_value$x AND i$x.field_name=:f_name$x)")->setParameter("f_name$x", $k)->setParameter("f_value$x", $v);
                 }
 
@@ -217,11 +206,24 @@ class Business_obj_repository extends EntityRepository
         }
 
         if (!empty($order)) {
-            $query = $query->andWhere('i0.field_name = :order')->setParameter('order', key($order))->orderBy('i0.value', current($order));
+            $f_db = $this->get_common_class_fields_by_name(array_keys($order));
+            $k = key($order);
+
+            if ($f_db[$k]->type == 'int' || $f_db[$k]->type == 'decimal') {
+                $query = $query->andWhere('i0.field_name = :order')->setParameter('order', $k)->
+                addSelect('CAST(i0.value as decimal) AS HIDDEN shit')->
+                orderBy('shit', current($order));
+            } else {
+                $query = $query->andWhere('i0.field_name = :order')->setParameter('order', $k)->orderBy('i0.value', current($order));
+            }
         }
 
         if (!empty($class)) {
             $query = $query->andWhere('i0.class_name = :class_name')->setParameter('class_name', $class);
+        }
+
+        if (!empty($in_id)) {
+            $query = $query->andWhere('i0.id IN (:in_id)')->setParameter('in_id', $in_id);
         }
 
         if (!empty($paginator)) {
@@ -262,6 +264,20 @@ class Business_obj_repository extends EntityRepository
     public function read_common_class($id)
     {
         return $this->_em->find('Entities\common_class', $id);
+    }
+
+    /**
+     * @return Entities\Common_class
+     */
+    public function read_common_class_by_name($name)
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $query = $qb->select('i')
+            ->from('Entities\common_class', 'i')
+            ->andwhere('i.name = :name')
+            ->setParameter('name', $name)
+            ->getQuery();
+        return $query->getSingleResult();
     }
 
     /**
@@ -526,8 +542,6 @@ class Business_obj_repository extends EntityRepository
             return FALSE;
         }
         return TRUE;
-
-        return TRUE;
     }
 
     public function delete_common_class_field($id)
@@ -541,8 +555,6 @@ class Business_obj_repository extends EntityRepository
             return FALSE;
         }
         return TRUE;
-
-        return TRUE;
     }
 
     public function delete_instance($id)
@@ -555,8 +567,6 @@ class Business_obj_repository extends EntityRepository
             $this->last_error = $e->getMessage();
             return FALSE;
         }
-        return TRUE;
-
         return TRUE;
     }
 }

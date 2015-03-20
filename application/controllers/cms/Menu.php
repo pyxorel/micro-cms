@@ -10,7 +10,6 @@ class Menu extends BaseController
     {
         parent::__construct();
         $this->load->library('ion_auth');
-        parent::connect_db();
         $this->lang->load('auth');
         parent::is_logged_in(['admin']);
     }
@@ -19,7 +18,8 @@ class Menu extends BaseController
     {
         $this->load->model('cms/Menu_model');
         $tree = $this->Menu_model->get_subTree_withPage(Menu_model::ROOT_ID, TRUE, DEFAULT_LANG_CODE);
-        parent::partialViewResult('cms/cms_master', 'cms/menu/index', array('tree' => $tree->createJSON(0)));
+        $tree = $tree->get_array(1);
+        parent::partialViewResult('cms/cms_master', 'cms/menu/index', array('tree' => json_encode($tree)));
     }
 
     public function addMenuView($pmenu)
@@ -36,9 +36,9 @@ class Menu extends BaseController
     {
         $this->load->model('cms/Menu_model');
 
-		$type = $this->input->get_post('type', TRUE);
+        $type = $this->input->get_post('type', TRUE);
         $is_service = $this->input->get_post('isService', TRUE);
-		
+
         $id = $this->Menu_model->create_menu(
             $this->input->get_post('pmenu', TRUE),
             $type == 'rel' ? $this->input->get_post('uri', TRUE) : '',
@@ -46,7 +46,10 @@ class Menu extends BaseController
             $type == 'abs' ? $this->input->get_post('uri', TRUE) : '',
             $this->input->get_post('sName', TRUE),
             $this->input->get_post('data', TRUE),
-            $this->input->get_post('template', TRUE));
+            $this->input->get_post('template', TRUE),
+            $this->input->get_post('date', TRUE),
+            $this->input->get_post('sort', TRUE),
+            $this->input->get_post('count_elem', TRUE));
         if (!empty($id)) {
             $this->createCacheMenu();
             $menu = $this->Menu_model->read_menu($id);
@@ -79,7 +82,10 @@ class Menu extends BaseController
             $type == 'abs' ? $this->input->get_post('uri', TRUE) : '',
             $this->input->get_post('sName', TRUE),
             $this->input->get_post('data', TRUE),
-            $this->input->get_post('template', TRUE))
+            $this->input->get_post('template', TRUE),
+            $this->input->get_post('date', TRUE),
+            $this->input->get_post('sort', TRUE),
+            $this->input->get_post('count_elem', TRUE))
         ) {
             $this->createCacheMenu();
             $menu = $this->Menu_model->read_menu($id);
@@ -118,6 +124,18 @@ class Menu extends BaseController
         }
     }
 
+    public function deleteObject($idMenu, $idInst)
+    {
+        $this->load->model('cms/Menu_model');
+
+        $result = $this->Menu_model->delete_linkMenuInstance($idMenu, $idInst);
+        if ($result === TRUE) {
+            echo "_OK_";
+        } else {
+            echo $result;
+        }
+    }
+
     public function deleteGallery($idMenu, $idGallery)
     {
         $this->load->model('cms/Menu_model');
@@ -133,6 +151,12 @@ class Menu extends BaseController
     public function addPageView($pmenu)
     {
         $this->load->view('cms/menu/addPage', array('pmenu' => $pmenu));
+    }
+
+    public function addObjectView($pmenu)
+    {
+
+        $this->load->view('cms/menu/addObject', array('pmenu' => $pmenu));
     }
 
     public function addGalleryView($pmenu)
@@ -152,20 +176,54 @@ class Menu extends BaseController
             if ($result === TRUE) {
                 $data = [];
                 $this->load->model('cms/Page_model');
-                foreach ($this->Page_model->get_pageNames(NULL, $pages) as $x=>$item) {
+                foreach ($this->Page_model->get_pageNames(NULL, $pages) as $x => $item) {
                     $data[$x] = array('title' => $item->name, 'key' => "p$item->id");
                 }
                 echo json_encode($data);
                 return;
             } else {
-				if(stripos($result, 'duplicate')!==FALSE){
-					echo 'Документ уже был добавлен!';
-				}
+                if (stripos($result, 'duplicate') !== FALSE) {
+                    echo 'Документ уже был добавлен!';
+                }
                 return;
             }
         }
         echo 'Ничего не выбрано!';
     }
+
+    public function addObject()
+    {
+        $objs = $this->input->get_post('objs', TRUE);
+
+        if (!empty($objs) && is_array($objs)) {
+            $this->load->model('cms/Menu_model');
+
+            $result = $this->Menu_model->add_instance($this->input->get_post('pmenu', TRUE), $objs);
+
+            if ($result === TRUE) {
+                $data = [];
+
+                $this->load->library('doctrinelib');
+                $this->_em = $this->doctrinelib->get_entityManager();
+                $instances = $this->_em->getRepository('Entities\Instance')->get_view_instances('sewerage', NULL, NULL, new Paginator(), $objs);
+                $this->load->model('cms/Page_model');
+                $x = 0;
+                foreach ($instances as $item) {
+                    $data[$x] = array('title' => $item->fields['name']['value'], 'key' => "o$item->id", 'addClass' => 'tree-icon-obj');
+                    $x++;
+                }
+                echo json_encode($data);
+                return;
+            } else {
+                if (stripos($result, 'duplicate') !== FALSE) {
+                    echo 'Объект уже был добавлен!';
+                }
+                return;
+            }
+        }
+        echo 'Ничего не выбрано!';
+    }
+
 
     public function addGallery()
     {
@@ -181,7 +239,7 @@ class Menu extends BaseController
             if ($result === TRUE) {
                 $data = array();
                 $this->load->model('cms/GalleryModel');
-                foreach ($this->GalleryModel->getGalleryNames(NULL, $gall) as $x=>$item) {
+                foreach ($this->GalleryModel->getGalleryNames(NULL, $gall) as $x => $item) {
                     $data[$x] = array('title' => $item->Name, 'key' => "g$item->ID");
                 }
                 echo json_encode($data);
@@ -201,6 +259,31 @@ class Menu extends BaseController
         $this->load->view('cms/menu/partialPages', array('pages' => $data));
     }
 
+    public function listObjects($pmenu = null, $name = null)
+    {
+        $this->load->library('doctrinelib');
+        $this->_em = $this->doctrinelib->get_entityManager();
+        $instances = $this->_em->getRepository('Entities\Instance')->get_view_instances('sewerage', !empty ($name) ? ['name' => $name . '%'] : NULL, ['name'=>'asc']);
+
+        $this->load->model('cms/Menu_model');
+        $tree = $this->Menu_model->get_subTree_withPage($pmenu, FALSE, DEFAULT_LANG_CODE);
+        $has = array_filter($tree->get_sub_tree(), function ($i) {
+            if ($i['key'][0] == 'o') return true;
+        });
+
+        $res = [];
+        foreach ($has as $item) {
+            $res[substr($item['key'], 1, strlen($item['key']))] = '';
+        }
+
+        foreach ($instances as $k => $item) {
+            if (array_key_exists($item->id, $res)) {
+                unset($instances[$k]);
+            }
+        }
+        $this->load->view('cms/menu/partialObjects', ['objs' => $instances]);
+    }
+
     public function listGallereis($name = null)
     {
         $this->load->model('cms/GalleryModel');
@@ -211,8 +294,8 @@ class Menu extends BaseController
     public function subElements($idMenu)
     {
         $this->load->model('cms/Menu_model');
-        $tree = $this->Menu_model->get_subTree_withPage($idMenu);
-        echo '[' . $tree->createJSON(0) . ']';
+        $tree = $this->Menu_model->get_subTree_withPage($idMenu, FALSE);
+        echo json_encode($tree->get_sub_tree(), JSON_UNESCAPED_UNICODE);
     }
 
     public function changePriority($idParentMenu, $idMenu, $idToMenu)
@@ -242,15 +325,14 @@ class Menu extends BaseController
             $tree = $this->Menu_model->get_tree($lang->code);
             write_file(APPPATH . "cache/$lang->code" . '_menu.xml', $tree->createXML(0)->getXml(false));
         }
-        //redirect('cms/menu');
     }
-	
-	 /**
-     * 
+
+    /**
+     *
      */
     public function list_route()
-    {		
-		$core = new Core_site();
+    {
+        $core = new Core_site();
         $output = [];
         foreach ($core->get_list_route_menu() as $item) {
             array_push($output, array('name' => $item, 'uri' => $item));

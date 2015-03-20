@@ -14,6 +14,10 @@ class Cms extends BaseController
         echo $captcha['image'];
     }
 
+    /**
+     * Отдать файл
+     * @param $base64_name - имя файла
+     */
     function file_content($base64_name)
     {
         $base64_name = str_replace('=', '', $base64_name);
@@ -22,17 +26,14 @@ class Cms extends BaseController
         $base64_name = str_replace('\\', DIRECTORY_SEPARATOR, $base64_name);
         $base64_name = urldecode($base64_name);
         $path_file = APPPATH . 'upload' . DIRECTORY_SEPARATOR . $base64_name;
-
-        $hdr = isset($_SERVER['HTTP_IF_NONE_MATCH'])?$_SERVER['HTTP_IF_NONE_MATCH'] : NULL ;
-
+        $hdr = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? $_SERVER['HTTP_IF_NONE_MATCH'] : NULL;
         if (file_exists($path_file)) {
             $modified = md5(@filemtime($path_file));
-            if($modified==$hdr)
-            {
-                header ("HTTP/1.1 304 Not Modified");
-                header ("Cache-Control: public, max-age=60");
-                header ("ETag: $modified");
-                die();
+            if ($modified == $hdr) {
+                header("HTTP/1.1 304 Not Modified");
+                header("Cache-Control: public, max-age=60");
+                header("ETag: $modified");
+                exit;
             }
 
             $ext = strtolower(pathinfo($path_file, PATHINFO_EXTENSION));
@@ -40,15 +41,19 @@ class Cms extends BaseController
                 $mimes =& get_mimes();
                 if (isset($mimes[$ext])) {
                     $mime = $mimes[$ext][0];
+                    // Clean output buffer
+                    if (ob_get_level() !== 0 && @ob_end_clean() === FALSE) {
+                        @ob_clean();
+                    }
                     header('Content-Length: ' . filesize($path_file));
                     header("Content-Type: $mime");
                     header('Expires: 0');
                     $base64_name = preg_replace("/^(.+\\\\)(.+)/", "$2", $base64_name);
                     header('Content-Disposition: inline; filename="' . $base64_name . '";');
-                    header ("ETag: $modified");
-                    header ("Cache-Control: public, max-age=60");
+                    header("ETag: $modified");
+                    header("Cache-Control: public, max-age=60");
                     @readfile($path_file);
-                    die();
+                    exit;
                 }
             }
 
@@ -58,4 +63,3 @@ class Cms extends BaseController
         parent::_404();
     }
 }
-

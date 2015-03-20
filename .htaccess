@@ -7,8 +7,27 @@ AddDefaultCharset UTF-8
 #php_value memory_limit 32M
 #php_value max_execution_time 60
 
-php_value upload_max_filesize 1M
-php_value post_max_size 1M
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault A86400    
+  ExpiresByType image/x-icon A2592000
+  ExpiresByType application/x-javascript A2592000
+  ExpiresByType text/css A2592000
+  ExpiresByType image/gif A604800
+  ExpiresByType image/png A604800
+  ExpiresByType image/jpeg A604800
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript
+  SetOutputFilter DEFLATE
+  BrowserMatch ^Mozilla/4 gzip-only-text/html
+  BrowserMatch ^Mozilla/4\.0[678] no-gzip
+  BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+</IfModule>
 
 <IfModule mod_rewrite.c>
 RewriteEngine on

@@ -19,19 +19,20 @@
                 <th></th>
             </tr>
 
-            <?php $i=0; foreach ($templates as $item): ?>
+            <?php $i = 0;
+            foreach ($templates as $item): ?>
                 <tr>
-                    <td><?= ++$i?></td>
-                    <td><i class="icon-edit"></i> <?= anchor('cms/template/editView/'.$item, $item)?></td>
+                    <td><?= ++$i ?></td>
+                    <td><i class="icon-edit"></i> <?= anchor('cms/template/editView/' . $item, $item) ?></td>
                     <td><i class="icon-remove"></i>
-                        <?= anchor('cms/template/delete/' . $item, ' удалить', 'onclick="return confirm(\'Подтверждаете удаление?\') ? true : false;"') ?></td>
+                        <?= anchor('cms/template/delete/' . $item, ' удалить', 'onclick="return confirm(\'Подтверждаете удаление?\') ? true : false;"') ?>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </table>
 
         <div class="pagination pagination-centered">
-            <ul>
-            </ul>
+            <ul></ul>
         </div>
     </div>
     <div id="push" style="margin: 21px 0px"></div>

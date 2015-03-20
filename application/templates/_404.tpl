@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8">
-<title>{resource name = '_404_title'}</title>
+<title>Страница не найдена</title>
 <style type="text/css">
 
 ::selection { background-color: #E13300; color: white; }
@@ -56,7 +56,7 @@ p {
 </head>
 <body>
 	<div id="container">
-		<h1>{resource name ='_404_text'}</h1>
+		<h1>Страница не найдена</h1>
 	</div>
 </body>
 </html>

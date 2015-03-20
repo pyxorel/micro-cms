@@ -1,5 +1,5 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed.');
-require_once(DOCTRINE_DIR . 'ORM/Tools/Setup.php');
+require_once DOCTRINE_DIR . 'ORM/Tools/Setup.php';
 
 use Doctrine\Common\ClassLoader,
     Doctrine\ORM\Configuration,
@@ -14,8 +14,6 @@ class Doctrinelib
 
     function __construct()
     {
-        require_once APPPATH . 'libs/Doctrine/Common/ClassLoader.php';
-
         $doctrineClassLoader = new ClassLoader('Doctrine', APPPATH . 'libs');
         $doctrineClassLoader->register();
         $entitiesClassLoader = new ClassLoader('Entities', APPPATH . 'models/cms/');
@@ -24,7 +22,6 @@ class Doctrinelib
         $entitiesClassLoader->register();
         $entitiesClassLoader = new ClassLoader('DoctrineExtensions', APPPATH . 'libs/Doctrine');
         $entitiesClassLoader->register();
-
 
         $config = new Configuration;
         $cache = new ArrayCache;
@@ -44,8 +41,7 @@ class Doctrinelib
         ));
 
         $connectionParams = array(
-            'pdo' => $dbh/*,
-            'charset' => 'UTF8'*/
+            'pdo' => $dbh
         );
         $this->em = EntityManager::create($connectionParams, $config);
 

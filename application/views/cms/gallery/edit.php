@@ -1,21 +1,9 @@
-<?php //include 'application/views/jq_validation.php'  ?>
+<script src="<?php echo base_url('application/content/cms/javaScripts/jquery-ui.min.js') ?>" type="text/javascript" charset="utf-8"></script>
+<script src="<?php echo base_url('application/content/cms/javaScripts/elfinder/js/elfinder.min.js') ?>" type="text/javascript" charset="utf-8"></script>
+<script src="<?php echo base_url('application/content/cms/javaScripts/elfinder/js/i18n/elfinder.ru.js') ?>" type="text/javascript" charset="utf-8"></script>
 
-<script
-    src="<?php echo base_url('application/content/cms/javaScripts/jquery-ui-1.8.24.custom.min.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
-
-<script
-    src="<?php echo base_url('application/content/cms/javaScripts/elfinder/js/elfinder.min.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
-
-<script
-    src="<?php echo base_url('application/content/cms/javaScripts/elfinder/js/i18n/elfinder.ru.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
-
-<?php
-echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinder.min.css'))
-?>
-<?= link_tag(base_url('application/content/cms/jquery-ui-1.8.24.custom.css')); ?>
+<?= link_tag(base_url('application/content/cms/jquery-ui.css')); ?>
+<?= link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinder.min.css')) ?>
 <script>
     $(document).ready(function () {
         $("#form").validate({
@@ -42,7 +30,7 @@ echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinde
         });
 
         $("#addItem").click(function () {
-            $('#dialogAddItem').load("<?php echo base_url("cms/gallery/addItemView/" . $gallery->ID) ?>");
+            $('#dialogAddItem').load("<?= base_url("cms/gallery/addItemView/" . $gallery->ID) ?>");
             $("#dialogAddItem").dialog("open");
             return false;
         });
@@ -52,7 +40,6 @@ echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinde
             modal: true,
             height: 450,
             width: 950,
-            position: ["center", "center"],
             buttons: {
                 "Добавить": function () {
                     $('#formAddItem').submit();
@@ -66,7 +53,7 @@ echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinde
 
         $(".edit").click(function () {
             var id = $(this).attr('href');
-            $('#dialogEditItem').load("<?php echo base_url("cms/gallery/editItemView/". $gallery->ID)?>" + '/' + id.substring(1, id.length));
+            $('#dialogEditItem').load("<?= base_url("cms/gallery/editItemView/". $gallery->ID)?>" + '/' + id.substring(1, id.length));
             $("#dialogEditItem").dialog("open");
         });
 
@@ -75,7 +62,6 @@ echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinde
             modal: true,
             height: 500,
             width: 940,
-            position: ["center", "center"],
             buttons: {
                 "Сохнанить": function () {
                     $('#formEditItem').submit();
@@ -86,8 +72,6 @@ echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinde
                 }
             }
         });
-
-
     });
 </script>
 
@@ -113,18 +97,15 @@ echo form_hidden('id', isset($gallery) ? $gallery->ID : set_value('id'));
         <?= form_input('description', isset($gallery) ? $gallery->Description : set_value('description'), "class = \"input-xlarge\""); ?>
     </div>
 
-    <a href="#" class="btn-add-img btn btn-small btn-primary" id="addItem"><i class="icon-plus-sign"></i> Добавить
-        изображение</a>
+    <a href="#" class="btn-add-img btn btn-small btn-primary" id="addItem"><i class="icon-plus-sign"></i> Добавить изображение</a>
 
     <div id="gallery">
         <?= $imgs ?>
     </div>
 
     <div class="pull-right">
-        <input type="submit" value="Применить" id="ok" name="ok"
-               class="btn btn-primary"/> <input type="submit"
-                                                value="Сохранить и выйти" id="save" name="save"
-                                                class="btn btn-primary"/>
+        <input type="submit" value="Применить" id="ok" name="ok" class="btn btn-primary"/>
+        <input type="submit" value="Сохранить и выйти" id="save" name="save" class="btn btn-primary"/>
         <?= anchor('cms/gallery', 'Отмена', "class=\"btn\""); ?>
     </div>
 </fieldset>

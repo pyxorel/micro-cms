@@ -20,7 +20,7 @@ class BaseController extends CI_Controller
     {
         $db_con = $this->instance->load->database('', TRUE);
         if (empty($db_con->conn_id)) {
-            log_message('error', 'Ошибка соединения с БД.');
+            log_message('error', 'Error connect DB.');
             $this->error();
         }
         return TRUE;
@@ -40,27 +40,26 @@ class BaseController extends CI_Controller
         $langs = $this->instance->Lang_model->get_langs();
 
         foreach ($langs as $l_item) {
-            $langs_array[$l_item->code]=$l_item;
+            $langs_array[$l_item->code] = $l_item;
         }
-		//из кука
+        //из кука
         $lang_code = get_cookie('lang_code');
-		//из хедера
-		if(empty($lang_code)){
-			$header_lang = $this->instance->input->get_request_header('Accept-Language', TRUE);
-            foreach(explode(',', $header_lang) as $item)
-            {
-				if(!empty($lang_code)) break;
-			
-                foreach($langs_array as $key=>$l)
-                {
-                    if(stripos($item, $key)===0)
-						{$lang_code = $key;
-						break;}
+        //из хедера
+        if (empty($lang_code)) {
+            $header_lang = $this->instance->input->get_request_header('Accept-Language', TRUE);
+            foreach (explode(',', $header_lang) as $item) {
+                if (!empty($lang_code)) break;
+
+                foreach ($langs_array as $key => $l) {
+                    if (stripos($item, $key) === 0) {
+                        $lang_code = $key;
+                        break;
+                    }
                 }
             }
-		}
+        }
         $this->instance->lang_id = 1;
-		
+
         if (!empty($set_lang)) {
             $lang_code = $set_lang;
         }
@@ -86,13 +85,20 @@ class BaseController extends CI_Controller
                     break;
                 }
             }
-            $this->instance->lang->load('main', 'russian');
         }
 
-        $this->instance->lang_name = $lang_obj->text;
-        $this->instance->lang_name_ = $lang_obj->label;
-        $this->instance->lang_code = $lang_code;
-        $this->instance->langs_array = $langs_array;
+        if (empty($lang_obj)) {
+            $this->instance->lang->load('main', 'russian');
+            $this->instance->lang_name = 'russian';
+            $this->instance->lang_name_ = 'Русский';
+            $this->instance->lang_code = 'ru';
+            $this->instance->langs_array = $langs_array;
+        } else {
+            $this->instance->lang_name = $lang_obj->text;
+            $this->instance->lang_name_ = $lang_obj->label;
+            $this->instance->lang_code = $lang_code;
+            $this->instance->langs_array = $langs_array;
+        }
         return TRUE;
     }
 
@@ -101,12 +107,12 @@ class BaseController extends CI_Controller
      * @param string masterPage - мастер страница
      * @param page - страница
      * @param data - данные
-     * @param int $status_code
-     * @param string $message - сообщение в header-e
+     * @param int $status_code - статус код
+     * @param string $message_header - сообщение в header-e
      */
-    public static function partialViewResult($masterPage, $page, $data = null, $status_code = 200, $message = '')
+    public static function partialViewResult($masterPage, $page, $data = null, $status_code = 200, $message_header = '')
     {
-        set_status_header($status_code, $message);
+        set_status_header($status_code, $message_header);
         $page_content = self::$_instance->load->view($page, $data, true);
         self::$_instance->load->view($masterPage, array('page_content' => $page_content, 'data' => $data));
     }
@@ -145,9 +151,7 @@ class BaseController extends CI_Controller
      */
     public static function _404()
     {
-		show_404();
-        //self::partialViewResult('master', '_400', NULL);
-        //die($this->instance->output->get_output());
+        show_404();
     }
 
     public function add_log_message($message, $ext = '', $trace = '', $level = 'error')
@@ -161,7 +165,7 @@ class BaseController extends CI_Controller
         log_message($level, '======================================================');
     }
 
-    public static function error($status_code = 500, $message=NULL)
+    public static function error($status_code = 500, $message = NULL)
     {
         self::partialViewResult('master', '_500', NULL, $status_code, $message);
         die(self::$_instance->output->get_output());
@@ -170,7 +174,7 @@ class BaseController extends CI_Controller
     /**
      * Проверить авторизован ли пользователь, редирект на страницу логина если не авторизован
      * (иcпользует механизм ION Auth)
-     * @param array $group - группа в кторую должен входить пользователь
+     * @param array $group - группа в которую должен входить пользователь
      */
     public function is_logged_in($groups = ['members'])
     {

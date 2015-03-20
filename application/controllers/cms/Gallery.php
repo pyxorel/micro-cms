@@ -10,11 +10,8 @@ class Gallery extends BaseController
     {
         parent::__construct();
         $this->load->library('ion_auth');
-        parent::connect_db();
         $this->lang->load('auth');
         parent::is_logged_in(['admin']);
-        $this->load->helper('language');
-        parent::set_lang();
     }
 
     public function index($page = 0)

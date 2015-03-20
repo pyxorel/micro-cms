@@ -1,14 +1,6 @@
 <script type="text/javascript">
     $(function () {
-
         <?php require_once 'application/views/cms/page/elfinder_init.php'?>
-
-        $("#myTab a").click(function (e) {
-            e.preventDefault();
-            $(this).tab("show");
-        });
-
-        $("#myTab a:first").tab("show");
 
         $(".add_img").click(function () {
             var link = this;
@@ -36,26 +28,34 @@
         });
 
         $("#formEditItem").validate({
-            errorElement:'span',
-            errorClass:'error-block',
+            errorElement: 'span',
+            errorClass: 'error-block',
             submitHandler: function (form) {
-                    $(form).ajaxSubmit(
-                        {
-                            success: function (data, textStatus) {
-                                $('#dialogEditItem').dialog("close");
-                                window.location.href = "<?= base_url('cms/gallery/editView')?>/" +<?= $gallery ?>;
-                            }
-                        });
+                $(form).ajaxSubmit(
+                    {
+                        success: function (data, textStatus) {
+                            $('#dialogEditItem').dialog("close");
+                            window.location.href = "<?= base_url('cms/gallery/editView')?>/" +<?= $gallery ?>;
+                        }
+                    });
             },
             rules: {}
         });
+
+
+        $("#myTab a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+
+        $("#myTab a:first").tab("show");
     });
 
 </script>
 
 <?php
 echo validation_errors('<span class="error">', '</span>');
-echo form_open('cms/gallery/editItem', "id=\"formEditItem\" class=\"form-horizontal well\"");
+echo form_open('cms/gallery/editItem', "id=\"formEditItem\" class=\"form-horizontal\"");
 echo form_hidden('gallery', $gallery);
 echo form_hidden('id', $item[DEFAULT_LANG_CODE]->id);
 ?>

@@ -49,7 +49,7 @@ class Tree
          * Cсылка использована преднамеренно, на производительность не влияет,
         * но позволяет изменять элементы, например, при внедрении сортировки
         */
-        $this->_childs[$parent][$id] = & $this->_items[$id];
+        $this->_childs[$parent][$id] = &$this->_items[$id];
     }
 
     /**
@@ -163,59 +163,81 @@ class Tree
                     }
                 }
             }
-            $this->_childs[$newParent][$id] = & $this->_items[$id];
+            $this->_childs[$newParent][$id] = &$this->_items[$id];
         }
-    }
-    //======================================
-    /**
-     * Тестовый метод отрисовки узла
-     * @param mixed $parent
-     * @return string
-     */
-    public function _createGroup($parent)
-    {
-        $s = '';
-        $childs = $this->getChilds($parent);
-        foreach ($childs as $k => $v) {
-            $s .= '<div style="border:1px solid #000000;padding:5px;margin:3">
-					Элемент ' . $v['data']->Name;
-            if ($this->hasChilds($v['id'])) {
-                $s .= $this->_createGroup($v['id']);
-            }
-            $s .= '</div>';
-        }
-        return $s;
     }
 
     /**
-     * Создать JSON для дерева элементов (dynatree)
-     * @param int $parent - элемент с которго начать построение
-     * @return string в формате JSON
+     * Получить массив из дерева элементов (для dynatree), работает рекурсивно для всех елементов дерева
+     * @param int $parent - элемент с которого начать построение
+     * @return array
      */
-    public function createJSON($parent)
+    public function get_array($parent)
     {
-        $s = '';
+        $i = $this->getItem($parent);
+        $isFolder = TRUE;
+        if ($i['id'][0] == 'p' || $i['id'][0] == 'g' || $i['id'][0] == 'o') {
+            $isFolder = FALSE;
+        }
+
+        $addClass = '';
+
+        if ($i['id'][0] == 'o') {
+            $addClass = 'tree-icon-obj';
+        }
+
+        if (isset($i['data']->is_service) && $i['data']->is_service) {
+            $addClass = 'tree-icon-service-menu';
+        }
+
+        $el = ['title' => ($isFolder ? (isset($i['data']->head) ? $i['data']->head : $i['data']->name) : $i['data']->name . (isset($i['data']->head) ? " ({$i['data']->head})" : NULL)),
+            'key' => $i['id'],
+            'isFolder' => $isFolder,
+            'isLazy' => $isFolder,
+            'addClass' => $addClass];
+
         $childs = $this->getChilds($parent);
-
         foreach ($childs as $k => $v) {
+            if (!isset($el['children'])) $el['children'] = [];
+            array_push($el['children'], $this->get_array($v['id'], $el));
 
+        }
+        return $el;
+    }
+
+    /**
+     * Получить поддерево элементов ввиде массива для дерева элементов (для dynatree)
+     * @param int $parent - элемент с которого начать построение
+     * @return array
+     */
+    public function get_sub_tree($parent = 0)
+    {
+        $childs = $this->getChilds($parent);
+        $result = [];
+        foreach ($childs as $k => $v) {
             $isFolder = TRUE;
-            if ($k[0] == 'p' || $k[0] == 'g') {
+            if ($k[0] == 'p' || $k[0] == 'g' || $k[0] == 'o') {
                 $isFolder = FALSE;
             }
 
-            $s .= ',{"title":"' . ($isFolder ? (isset($v['data']->head) ? $v['data']->head : $v['data']->name) : $v['data']->name) . '",' . '"key":"' . $k . '"' . ($isFolder ? ', "isFolder":"true", "isLazy":"true"' : NULL);
+            $addClass = '';
 
-            if ($this->hasChilds($v['id'])) {
-                $s .= ', "children":[' . $this->createJSON($v['id']) . ']}';
-            } else {
-                $s .= '}';
+            if ($k[0] == 'o') {
+                $addClass = 'tree-icon-obj';
             }
-        }
-        $s = str_replace("[,{", "[{", $s);
-        $s = substr($s, 1, strlen($s) - 1);
 
-        return $s;
+            if (isset($v['data']->is_service) && $v['data']->is_service) {
+                $addClass = 'tree-icon-service-menu';
+            }
+
+            array_push($result, ['title' => ($isFolder ? (isset($v['data']->head) ? $v['data']->head : $v['data']->name) : $v['data']->name . (isset($v['data']->head) ? " ({$v['data']->head})" : NULL)),
+                'key' => $v['id'],
+                'isFolder' => $isFolder,
+                'isLazy' => $isFolder,
+                'addClass' => $addClass
+            ]);
+        }
+        return $result;
     }
 
     public function createXML($parent, &$xml = NULL, array &$st = array())
@@ -225,25 +247,26 @@ class Tree
             $xml->setRootName('menus', NULL);
             $xml->initiate();
         }
-		
+
         $childs = $this->getChilds($parent);
         foreach ($childs as $v) {
             $s = '/';
             foreach ($st as $item) {
-					$s .= $item . '/';
+                $s .= $item . '/';
             }
-			
-			if($v['data']->name=='/')
-			{
-				$s= $v['data']->name;
-			}elseif(empty($v['data']->name))
-			{
-				$s= '';
-			}else
-			{
-				$s .= $v['data']->name;
-			}
-			
+
+            if ($v['data']->name == '/') {
+                $s = $v['data']->name;
+            } elseif (empty($v['data']->name)) {
+                $s = '';
+            } else {
+                $s .= $v['data']->name;
+
+                if ($v['data']->name[0] == '/') {
+                    $s = $v['data']->name;
+                }
+            }
+
             //не корень
             if ($v['data']->id != 1 && $v['data']->is_service != 1) {
                 array_push($st, $v['data']->name);
@@ -255,7 +278,10 @@ class Tree
                 'id' => $v['data']->id,
                 'isService' => $v['data']->is_service,
                 'sName' => $v['data']->service_name,
-                'template' => $v['data']->template
+                'template' => $v['data']->template,
+                'sort' => empty($v['data']->sort) ? 'priority' : $v['data']->sort,
+                'date' => $v['data']->date,
+                'count_elem' => empty($v['data']->count_elem) ? 0 : (int)$v['data']->count_elem
             ));
 
             if ($this->hasChilds($v['id'])) {

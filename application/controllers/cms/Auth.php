@@ -1,17 +1,14 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
-
 include_once 'application/utils/base_controller.php';
 
 
 class Auth extends BaseController
 {
-
     function __construct()
     {
         parent::__construct();
         $this->load->library('ion_auth');
         $this->load->library('form_validation');
-        parent::connect_db();
         $this->lang->load('auth');
         parent::set_lang(NULL, ['main', 'ion_auth', 'auth', 'form_validation_lang']);
     }
@@ -43,41 +40,6 @@ class Auth extends BaseController
 
         if ($_this->email->send()) {
             parent::partialViewResult('l_master', 'auth/forgot_password_send_email');
-        } else {
-            parent::error();
-        }
-    }
-
-    /**
-     * Отправка письма (регистрация)
-     * @param string $email
-     */
-    static function post_account_creation_successful($email, $lang_code, $reactivate = FALSE)
-    {
-        $_this = parent::get_instance();
-        $_this->lang->load('ion_auth_lang', $_this->lang_name_);
-
-        $_this->load->library('email');
-        $_this->config->load('email');
-
-        $_this->email->from($_this->config->item('email_from'));
-        $_this->email->to($email);
-        $_this->email->subject(lang('register_activate_head'));
-
-        $identity = $_this->ion_auth->where('email', strtolower($email))->users()->row();
-
-        $_this->data = [
-            'identity' => $identity->email,
-            'activation' => $identity->activation_code,
-            'id' => $identity->id
-        ];
-
-        $_this->email->message($_this->load->view('auth/email/activate.tpl.php', $_this->data, TRUE));
-
-        if ($_this->email->send()) {
-            !$reactivate ?
-                parent::partialViewResult('l_master', 'auth/reg_activate', $_this->data) :
-                parent::partialViewResult('l_master', 'auth/reg_reactivate', $_this->data);
         } else {
             parent::error();
         }
@@ -151,7 +113,7 @@ class Auth extends BaseController
     }
 
     /**
-     * Изменение пароля
+     * Изминение пароля
      */
     function change_password()
     {
@@ -162,7 +124,6 @@ class Auth extends BaseController
         $this->form_validation->set_rules('new_confirm', $this->lang->line('change_password_validation_new_password_confirm_label'), 'required');
 
         $user = $this->ion_auth->user()->row();
-
 
         $this->data['old_password'] = array(
             'name' => 'old',
@@ -246,7 +207,6 @@ class Auth extends BaseController
         }
     }
 
-
     /**
      * Сброс пароля
      * @param null $code
@@ -302,36 +262,6 @@ class Auth extends BaseController
         } else {
             redirect("auth/forgot_password");
         }
-    }
-
-    /**
-     * Активация учетной записи
-     * @param number $id - идентификатор учетной записи
-     * @param bool|string $code - активационый код
-     */
-    function activate($id, $code = false)
-    {
-        if ($code !== false) {
-            $activation = $this->ion_auth->activate($id, $code);
-        } else {
-            parent::_404();
-        }
-
-        if ($activation) {
-            parent::partialViewResult('l_master', 'auth/reg_complete');
-        } else {
-            parent::partialViewResult('l_master', 'auth/reg_activate_has_complete');
-        }
-    }
-
-    /**
-     * Реактивация учетной записи
-     * @param $identity
-     */
-    function reactivate($identity)
-    {
-        $identity = base64_decode($identity);
-        self::post_account_creation_successful($identity, $this->lang_code, FALSE);
     }
 
     function _get_csrf_nonce()

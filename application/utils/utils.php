@@ -6,6 +6,22 @@
 class Utils
 {
 
+    public static function array_group_by(array $arr, callable $key_selector, $name) {
+        $result = array();
+        foreach ($arr as $i) {
+            $key = call_user_func($key_selector, ['i'=>$i, 'name'=>$name]);
+            $result[$key][] = $i;
+        }
+        return $result;
+    }
+
+    public static function array_sort_by(array & $arr, callable $func) {
+        usort($arr, $func);
+    }
+
+    public static function array_sort_key_by(array & $arr, callable $func) {
+        uksort($arr, $func);
+    }
 
     public static function crc32_file($file)
     {

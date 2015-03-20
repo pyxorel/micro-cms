@@ -9,7 +9,6 @@ class Analytic extends BaseController {
     {
         parent::__construct();
         $this->load->library('ion_auth');
-        parent::connect_db();
         $this->lang->load('auth');
         parent::is_logged_in(['admin']);
     }

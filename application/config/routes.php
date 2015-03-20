@@ -39,10 +39,9 @@
 */
 
 $route['default_controller'] = "site/index";
-//$route['cms'] = 'cms/auth/index';
 //-----------------------------------------------------------------------
-//$route['load_img'] = 'site/site/load_img';
 $route['file_content/(.*)'] = 'cms/cms/file_content/$1';
+$route['SiteRes/(.*)'] = 'cms/cms/file_content/$1';
 $route['cms'] = 'cms/menu';
 $route['cms/(.*)'] = 'cms/$1';
 $route['lang/(.*)/(.*)'] = 'site/lang/$1/$2';
@@ -50,7 +49,6 @@ $route['(.*)'] = 'site/index/$1';
 
 $route['error'] = 'cms/cms/error';
 $route['404_override'] = 'default_controller/_404';
-//$route['404_override'] = '';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

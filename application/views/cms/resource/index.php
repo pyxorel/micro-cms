@@ -24,14 +24,15 @@
             </tr>
 
             <?php
-            foreach ($resources as $i=>$item):
+            foreach ($resources as $i => $item):
                 $linkName = anchor('cms/resource/editView/' . $item->id, $item->name);
                 ?>
                 <tr>
                     <td><?= ++$i ?></td>
                     <td><?= $linkName ?></td>
                     <td><?= $item->description ?></td>
-                    <td><i class="icon-remove"></i><?= anchor('cms/resource/delete/' . $item->id, ' удалить', 'onclick="return confirm(\'Подтверждаете удаление?\') ? true : false;"') ?>
+                    <td>
+                        <i class="icon-remove"></i><?= anchor('cms/resource/delete/' . $item->id, ' удалить', 'onclick="return confirm(\'Подтверждаете удаление?\') ? true : false;"') ?>
                     </td
                 </tr>
             <?php endforeach; ?>

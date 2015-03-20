@@ -1,0 +1,49 @@
+<?php
+
+namespace User_modules;
+use Business_obj\Business_obj;
+
+class Form
+{
+    function __construct()
+    {
+
+    }
+
+    public static function feed_back()
+    {
+        $ci = &get_instance();
+        $ci->load->library('email');
+        $ci->config->load('email');
+        $ci->email->from($ci->config->item('email_from'));
+        $ci->email->to($ci->config->item('email_from'));
+        $ci->email->subject('Обратный звонок');
+
+        $smarty = $ci->smartylib->get_smarty();
+        $smarty->assign('form_post_param', $ci->input->post());
+        $output = $smarty->fetch('feed_back_email.tpl');
+        $ci->email->message($output);
+
+        if ($ci->email->send()) {
+            echo 'ok';
+        } else {
+            echo 'err';
+        }
+    }
+
+    public static function comment_add()
+    {
+        include_once 'application/utils/business_obj.php';
+        $ci = &get_instance();
+        $ci->load->library('doctrinelib');
+        $ci->_em = $ci->doctrinelib->get_entityManager();
+        $class = $ci->_em->getRepository('Entities\Common_class')->read_common_class_by_name('comment');
+        $param = $ci->input->post();
+        $param['date'] = date('Y-m-d');
+        $res = Business_obj::parse_form($class, $param);
+        if (!$ci->_em->getRepository('Entities\Instance')->create_instance($res)) {
+
+        }
+        return TRUE;
+    }
+}

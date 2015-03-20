@@ -91,6 +91,14 @@ span.dynatree-drag-helper-img,
 	background-position: 0 0;
 }
 
+.tree-icon-obj span.dynatree-icon{
+	background-position: -16px 0;
+}
+
+.tree-icon-service-menu span.dynatree-icon{
+	background-position: -16px -16px;
+}
+
 /** Used by 'icon' node option: */
 ul.dynatree-container img
 {
@@ -480,4 +488,7 @@ span.dynatree-drop-target.dynatree-drop-reject
 }
 span.dynatree-drop-target.dynatree-drop-after a
 {
+}
+.tree-icon-service-menu span.dynatree-icon{
+	background-position: -16px -16px;
 }

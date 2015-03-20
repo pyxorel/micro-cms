@@ -1,7 +1,7 @@
 <?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- * Обертка над капчей кодегнитера
+ * Обертка над капчей CI
  */
 class MY_Captcha
 {

@@ -1,0 +1,9 @@
+{extends file="master.tpl"}
+{block name=title}
+		{_call_user_function class='Sewerage' func='sewerage' params=$params out="result"}
+		{$result.docs.0->head}
+{/block}
+
+{block name=content}
+		{$result.sewerage->fields.text.value}
+{/block}

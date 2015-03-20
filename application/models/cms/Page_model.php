@@ -5,10 +5,10 @@ include_once 'application/utils/paginator.php';
 
 class Page_model extends CI_Model
 {
-    const TriggerError = 'rase_error';
     const TableName = 'documents';
     const TableNameLocs = 'document_locs';
     const VIEW_DOC_LOCS = 'view_doc_locs';
+    const TableNameIndex = 'documents_index';
 
     function __construct()
     {
@@ -46,34 +46,56 @@ class Page_model extends CI_Model
         return $this->form_validation->run();
     }
 
-    public function get_pages(Paginator $paginator, $lang_code = DEFAULT_LANG_CODE, $field, $to, $s_text)
+    /**
+     * Получить страницы (поиск страниц)
+     * @param Paginator $paginator - пагинатор
+     * @param string $lang_code - языковой код
+     * @param string $field_order_by - поле для сортировки
+     * @param string $to - направление сортировки
+     * @param array $s_text - искомый текст в виде ['field_name'=>'value']
+     * @param array|int $ids - список идентификаторов документов
+     * @param string $full - применить полнотекстовый поиск (работает только по полю 'content') - сюда передать строку для поиска
+     * @param bool $in_boolean_mode - использовать опцию IN BOOLEAN MODE для полнотекстового поиска
+     * @return mixed
+     */
+    public function get_pages(Paginator $paginator, $lang_code = DEFAULT_LANG_CODE, $field_order_by = NULL, $to = NULL, $s_text = NULL, $ids = NULL, $full_text_search = NULL, $in_boolean_mode = TRUE)
     {
         $this->db->start_cache();
         $this->db->from(self::VIEW_DOC_LOCS);
-        if (empty($field))
+        if (empty($field_order_by))
             $this->db->order_by('name', 'asc');
         else
-            $this->db->order_by($field, $to);
+            $this->db->order_by($field_order_by, empty($to) ? 'asc' : $to);
 
         if (!empty($s_text)) {
             $x = 0;
             foreach ($s_text as $k => $val) {
                 if (!empty($val)) {
                     if ($x == 0)
-                        $this->db->like($k, $val, 'after');
+                        $this->db->like($k, $val);
                     else
-                        $this->db->or_like($k, $val, 'after');
+                        $this->db->or_like($k, $val);
                 }
                 $x++;
             }
         }
 
+        if (!empty($ids)) {
+            $this->db->where_in('id', $ids);
+        }
+
+        if (!empty($full_text_search)) {
+            $this->load->library('Morph');
+            $q = $this->morph->Words2AllForms($full_text_search);
+            $this->db->or_where('match(content_index, content_index_normalize) against ("' . $q . '" ' . ($in_boolean_mode ? 'IN BOOLEAN MODE' : NULL) . ')', NULL, FALSE);
+        }
+
         $query = $this->db->where('lang_code', $lang_code);
+
         $this->db->stop_cache();
         $paginator->setCountRow($this->db->count_all_results());
         $query = $query->get(self::VIEW_DOC_LOCS, $paginator->getSize(), $paginator->getBeginElement());
         $this->db->flush_cache();
-
         return $query->result();
     }
 
@@ -136,6 +158,7 @@ class Page_model extends CI_Model
         }
 
         $id_doc = $this->db->insert_id();
+        $id_loc_doc = [];
 
         foreach ($data as $lang => $item) {
 
@@ -143,6 +166,20 @@ class Page_model extends CI_Model
                 'meta_keywords' => $item['keywords'], 's_content' => $item['scontent'], 'head' => $item['head'], 'img' => base64_encode($item['img']), 'img_tmb' => base64_encode($item['img_tmb'])];
 
             if (!$this->db->insert(self::TableNameLocs, $set_data)) {
+                $this->db->trans_rollback();
+                $this->last_error = $this->db->error()['message'];
+                return false;
+            }
+            $id_loc_doc[$this->db->insert_id()] = $item['content'];
+        }
+
+        $this->load->library('Morph');
+
+        foreach ($id_loc_doc as $k => $item) {
+            $content = strip_tags($item);
+            $set_data = ['id_doc_loc' => $k, 'content' => $content, 'content_index' => $this->morph->Words2BaseForm($content)];
+
+            if (!$this->db->insert(self::TableNameIndex, $set_data)) {
                 $this->db->trans_rollback();
                 $this->last_error = $this->db->error()['message'];
                 return false;
@@ -170,6 +207,10 @@ class Page_model extends CI_Model
             return false;
         }
 
+        $ids = [];
+
+        $this->load->library('Morph');
+
         foreach ($data as $lang => $item) {
 
             $this->db->where('id_doc', $id);
@@ -183,7 +224,19 @@ class Page_model extends CI_Model
             $this->db->set('img_tmb', base64_encode($item['img_tmb']));
 
             if (!$this->db->update(self::TableNameLocs)) {
+                $this->db->trans_rollback();
+                $this->last_error = $this->db->error()['message'];
+                return false;
+            }
 
+            $row = $this->db->get_where(self::TableNameLocs, array('id_doc' => $id, 'id_lang' => $lang))->row();
+
+            $this->db->where('id_doc_loc', $row->id);
+            $content = strip_tags($item['content']);
+            $this->db->set('content', $content);
+            $this->db->set('content_index', $this->morph->Words2BaseForm($content));
+
+            if (!$this->db->update(self::TableNameIndex)) {
                 $this->db->trans_rollback();
                 $this->last_error = $this->db->error()['message'];
                 return false;
@@ -196,11 +249,29 @@ class Page_model extends CI_Model
 
     public function delete_page($id)
     {
-        $this->db->where('id', $id);
-        if (!$this->db->delete(self::TableName)) {
+        $this->db->trans_start();
+
+        $result = $this->db->get_where(self::TableNameLocs, array('id_doc' => $id))->result();
+        $ids = [];
+        foreach ($result as $item) {
+            array_push($ids, $item->id);
+        }
+
+        $this->db->where_in('id_doc_loc', $ids);
+        if (!$this->db->delete(self::TableNameIndex)) {
+            $this->db->trans_rollback();
             $this->last_error = $this->db->error()['message'];
             return false;
         }
+
+        $this->db->where('id', $id);
+        if (!$this->db->delete(self::TableName)) {
+            $this->db->trans_rollback();
+            $this->last_error = $this->db->error()['message'];
+            return false;
+        }
+
+        $this->db->trans_complete();
         return true;
     }
 }

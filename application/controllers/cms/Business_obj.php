@@ -32,19 +32,15 @@ class Business_obj extends BaseController
     {
         $rules_array = [];
         $rules = $this->input->get_post('rules', TRUE);
-        foreach($rules as $k=>$item)
-        {
+        foreach ($rules as $k => $item) {
             $rule = [];
-            if(isset($item['required']))
-            {
+            if (isset($item['required'])) {
                 $rule['required'] = TRUE;
             }
-            if(isset($item['min']))
-            {
+            if (isset($item['min'])) {
                 $rule['min'] = $item['min'];
             }
-            if(isset($item['max']))
-            {
+            if (isset($item['max'])) {
                 $rule['max'] = $item['max'];
             }
             $rules_array[$k] = json_encode($rule);
@@ -58,18 +54,16 @@ class Business_obj extends BaseController
         $this->form_validation->set_rules('loc_name', 'Название', 'trim|required|max_length[50]');
 
         if ($this->form_validation->run() === FALSE) {
-           parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_create');
-       } else {
-           $rep = $this->_em->getRepository('Entities\Common_class');
-           if (!$rep->create_common_class($this->input->get_post('name', TRUE), $this->input->get_post('loc_name', TRUE), $this->input->get_post('fields', TRUE), $this->parse_common_class_form())) {
-               $this->form_validation->set_custom_error($rep->last_error);
-               parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_create');
-           } else {
-              redirect('cms/business_obj');
-           }
-       }
-
-
+            parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_create');
+        } else {
+            $rep = $this->_em->getRepository('Entities\Common_class');
+            if (!$rep->create_common_class($this->input->get_post('name', TRUE), $this->input->get_post('loc_name', TRUE), $this->input->get_post('fields', TRUE), $this->parse_common_class_form())) {
+                $this->form_validation->set_custom_error($rep->last_error);
+                parent::partialViewResult('cms/cms_master', 'cms/business_obj/common_class_create');
+            } else {
+                redirect('cms/business_obj');
+            }
+        }
     }
 
     public function edit_common_class_view($id)
@@ -223,19 +217,23 @@ class Business_obj extends BaseController
             foreach (explode(';', $s_text) as $f) {
                 $v = explode(':', $f);
                 if (isset($v[0]) && isset($v[1]))
-                    $fields[$v[0]] = $v[1];
+                    $fields[$v[0]] = $v[1] . '%';
             }
         }
 
-        $instances = $this->_em->getRepository('Entities\Instance')->get_view_instances($s_class, $fields, NULL, new Paginator());
+        $this->load->library('pagination');
+        $paginator = new Paginator($page);
+        $instances = $this->_em->getRepository('Entities\Instance')->get_view_instances($s_class, $fields, NULL, $paginator);
         $classes = $this->_em->getRepository('Entities\Instance')->get_common_classes();
+
+        Paginator::initPaginator('cms/business_obj/instances', $paginator, $this);
         parent::partialViewResult('cms/cms_master', 'cms/business_obj/instances', ['s_class' => $s_class, 's_text' => $s_text, 'instances' => $instances, 'classes' => $classes, 'class_assoc' => $this->assoc_array_class()]);
     }
 
-    public function create_instance_view($id)
+    public function create_instance_view($id, $s_class = NULL)
     {
         $class = $this->_em->getRepository('Entities\Common_class')->read_common_class($id);
-        parent::partialViewResult('cms/cms_master', 'cms/business_obj/instance_create', ['class' => $class, 'id_class' => $id]);
+        parent::partialViewResult('cms/cms_master', 'cms/business_obj/instance_create', ['class' => $class, 'id_class' => $id, 's_class' => $s_class]);
     }
 
     /**
@@ -272,27 +270,29 @@ class Business_obj extends BaseController
 
     public function create_instance()
     {
+        $class = $this->input->post('s_class');
         if (!$this->_em->getRepository('Entities\Instance')->create_instance($this->parse_instance_form())) {
         }
-        redirect('cms/business_obj/instances');
+        redirect('cms/business_obj/instances/?s_class=' . $class);
     }
 
-    public function edit_instance_view($id)
+    public function edit_instance_view($id, $class = NULL)
     {
         parent::partialViewResult('cms/cms_master', 'cms/business_obj/instance_edit',
-            ['obj' => $this->_em->getRepository('Entities\Instance_view')->read_view_instance($id)]);
+            ['obj' => $this->_em->getRepository('Entities\Instance_view')->read_view_instance($id), 's_class' => $class]);
     }
 
     public function edit_instance()
     {
+        $class = $this->input->post('s_class');
         if (!$this->_em->getRepository('Entities\Instance')->update_instance($this->input->post('id'), $this->parse_instance_form())) {
         }
-        redirect('cms/business_obj/instances');
+        redirect('cms/business_obj/instances/?s_class=' . $class);
     }
 
-    public function delete_instance($id)
+    public function delete_instance($id, $class)
     {
         $this->_em->getRepository('Entities\Instance')->delete_instance($id);
-        redirect('cms/business_obj/instances');
+        redirect('cms/business_obj/instances/?s_class=' . $class);
     }
 }

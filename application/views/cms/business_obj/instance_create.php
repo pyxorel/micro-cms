@@ -1,13 +1,7 @@
 <body>
-<script
-    src="<?= base_url('application/content/cms/javaScripts/elfinder/js/elfinder.min.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
-
-<script
-    src="<?= base_url('application/content/cms/javaScripts/elfinder/js/i18n/elfinder.ru.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
-
-<?= link_tag(base_url('application/content/cms/jquery-ui-1.8.24.custom.css')); ?>
+<script src="<?= base_url('application/content/cms/javaScripts/elfinder/js/elfinder.min.js') ?>" type="text/javascript" charset="utf-8"></script>
+<script src="<?= base_url('application/content/cms/javaScripts/elfinder/js/i18n/elfinder.ru.js') ?>" type="text/javascript" charset="utf-8"></script>
+<?= link_tag(base_url('application/content/cms/jquery-ui.css')); ?>
 <?= link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinder.min.css')); ?>
 
 <script type="text/javascript" charset="utf-8">
@@ -75,11 +69,10 @@
             resizable: false,
             height: 490,
             width: 540,
-            position: ["center", "center"],
             buttons: {
                 "Применить": function () {
                     var name = $("#add_obj_dialog").attr('class_name');
-                    $('#container_'+name).append($('#add_obj_dialog').children().clone());
+                    $('#container_' + name).append($('#add_obj_dialog').children().clone());
                     $(this).dialog("close");
 
                 },
@@ -90,7 +83,7 @@
         });
 
         $(".add_obj").click(function () {
-            $("#add_obj_dialog").load("<?= base_url('cms/business_obj/get_part_instances')?>/"+$(this).attr('class_name') + '/' + $(this).attr('id'), function(){
+            $("#add_obj_dialog").load("<?= base_url('cms/business_obj/get_part_instances')?>/" + $(this).attr('class_name') + '/' + $(this).attr('id'), function () {
                 $("#add_obj_dialog").attr('class_name', $(".add_obj").attr('class_name'));
                 $('#add_obj_dialog').dialog('option', 'title', 'Добавление объектов: ' + $(this).attr('class_name'));
                 $("#add_obj_dialog").dialog("open");
@@ -102,22 +95,32 @@
     });
 </script>
 <?php include_once 'application/views/cms/menu.php' ?>
-<div id="add_obj_dialog"  class_name ="" title=""></div>
+<div id="add_obj_dialog" class_name="" title=""></div>
 <?= form_open_multipart('cms/business_obj/create_instance', "id=\"form\" class=\"form-horizontal well\""); ?>
 <?= form_hidden('id_class', $id_class); ?>
+<?= form_hidden('s_class', isset($s_class) ? $s_class : NULL); ?>
 <?= validation_errors('<div class="control-group"><span class="error">', '</span></div>'); ?>
 
-<legend>Создание объекта (<?= $class->name?>)</legend>
+<legend>Создание объекта (<?= $class->name ?>)</legend>
 <fieldset id="static">
     <div class="control-group">Заполните необходимые поля:</div>
     <?php foreach ($class->links as $item):
         $item->__field->__load();
         $i = $item->__field;
+        $select = explode(',', $i->extra);
+        $assoc_select = [];
+        foreach ($select as $s) {
+            $assoc_select[$s] = $s;
+        }
         ?>
         <div class="control-group" style="margin-left: 10px;">
-            <label class="control-label" for="name"><?= $i->loc_name ?></label>
+            <label style="width: 250px;" class="control-label" for="name"><?= $i->loc_name ?></label>
             <?php switch ($i->type):
-                case 'string': ?>
+                case 'select': ?>
+                    <?= form_dropdown("fields[{$item->id}]", $assoc_select, set_value("fields[{$item->id}]"), "id=\"$item->id\" class=\"input-large\""); ?>
+                    <?php break; ?>
+                <?php case
+                'string': ?>
                     <?= form_input("fields[{$item->id}]", set_value("fields[{$item->id}]"), "id=\"ids\" class=\"input-xxlarge\""); ?>
                     <?php break; ?>
                 <?php case
@@ -134,14 +137,12 @@
                 <?php case 'file': ?>
                     <?= form_input(['name' => "files[{$item->id}]", 'type' => 'hidden'], set_value("fields[{$item->id}]"), "id=\"fields[{$item->id}]\" class=\"input-medium\""); ?>
                     <?= anchor('#', '<i class="icon-plus-sign"></i> Выбрать', "name=\"add\" id=\"add_fields_$item->id\" input_id=\"$item->id\" class=\"btn add_file\""); ?>
-                    <div id="container_file_<?= $item->id ?>" input_id="<?= $item->id ?>"
-                         style="display: inline;"></div>
+                    <div id="container_file_<?= $item->id ?>" input_id="<?= $item->id ?>" style="display: inline;"></div>
                     <?php break; ?>
                 <?php case 'img': ?>
                     <?= form_input(['name' => "files[{$item->id}]", 'type' => 'hidden'], set_value("fields[{$item->id}]"), "id=\"fields[{$item->id}]\" class=\"input-medium\""); ?>
                     <?= anchor('#', '<i class="icon-plus-sign"></i> Выбрать', "name=\"add\" id=\"add_fields_$item->id\" input_id=\"$item->id\" class=\"btn add_file\""); ?>
-                    <div id="container_file_<?= $item->id ?>" input_id="<?= $item->id ?>"
-                         style="display: inline;"></div>
+                    <div id="container_file_<?= $item->id ?>" input_id="<?= $item->id ?>" style="display: inline;"></div>
                     <?php break; ?>
                 <?php case 'bool': ?>
                     <?= form_checkbox(['name' => "check[{$item->id}]"], 1, FALSE, "id=\"check[{$item->id}]\" class=\"check\""); ?>
@@ -153,9 +154,9 @@
                 <?php case 'link': ?>
                     <?= anchor('#', "<i class=\"icon-plus-sign\"></i> Выбрать ($i->loc_name)", "class_name=\"$i->extra\" id=\"$item->id\" input_id=\"$item->id\"  class=\"btn add_obj\""); ?>
                     <?= form_checkbox(['name' => "fields[{$item->id}][]"], 'fake', TRUE, 'style=display:none;'); ?>
-                    <div id="container_<?= $i->extra?>" style="display: none;">
+                    <div id="container_<?= $i->extra ?>" style="display: none;">
 
-                     </div>
+                    </div>
                     <?php break; ?>
                 <?php endswitch; ?>
         </div>
@@ -163,9 +164,8 @@
     </div>
 
     <div class="pull-right">
-        <input type="submit" value="Сохранить и выйти" id="save" name="save"
-               class="btn btn-primary"/>
-        <?= anchor('cms/business_obj/instances', 'Отмена', "class=\"btn\""); ?>
+        <input type="submit" value="Сохранить и выйти" id="save" name="save" class="btn btn-primary"/>
+        <?= anchor('cms/business_obj/instances' . (isset($s_class) ? '/?s_class=' . $s_class : null), 'Отмена', "class=\"btn\""); ?>
     </div>
 
 </fieldset>

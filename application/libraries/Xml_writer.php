@@ -40,7 +40,12 @@ class Xml_writer extends XMLWriter
     private $_rootName = '';
     
     private $_attributes = '';
-    
+
+
+    private $_dtd_name;
+    private $_dtd_publcid;
+    private $_dtd_systemid;
+
     /**
      * XML version. Defaults to 1.0
      */
@@ -73,6 +78,16 @@ class Xml_writer extends XMLWriter
     {
         $this->_rootName = $rootName;
         $this->_attributes = $attributes;
+    }
+
+    /**
+     *
+     */
+    public function setDtd ($name, $publicid, $systemid)
+    {
+        $this->_dtd_name = $name;
+        $this->_dtd_publcid = $publicid;
+        $this->_dtd_systemid = $systemid;
     }
 
     /**
@@ -120,7 +135,12 @@ class Xml_writer extends XMLWriter
         
         // Set DTD.
         $this->startDocument($this->_xmlVersion, $this->_charSet);
-        
+
+        if(!empty($this->_dtd_name)) {
+            $this->startDtd($this->_dtd_name, $this->_dtd_publcid, $this->_dtd_systemid);
+            $this->endDtd();
+        }
+
         // Set XSLT stylesheet path, if any.
         if ($this->_xsltFilePath) {
             $this->writePi('xml-stylesheet', 'type="text/xsl" href="' . $this->_xsltFilePath . '"');

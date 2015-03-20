@@ -7,7 +7,7 @@ namespace Entities;
 class Common_class_field
 {
     public static $TYPES = ['int' => 'int', 'decimal' => 'decimal', 'string' => 'string',
-        'multi-string' => 'multi-string', 'file' => 'file', 'img' => 'img', 'bool'=>'bool', 'date'=>'date', 'link'=>'link'];
+        'multi-string' => 'multi-string', 'file' => 'file', 'img' => 'img', 'bool'=>'bool', 'date'=>'date', 'link'=>'link', 'select'=>'select'];
     /**
      * @Id
      * @Column(type="integer")
@@ -18,7 +18,7 @@ class Common_class_field
     public $name;
     /** @Column(type="string", name="loc_name", length=50) */
     public $loc_name;
-    /** @Column(type="string", name="type", columnDefinition="ENUM('int', 'decimal', 'string', 'multi-string', 'file', 'img', 'bool', 'date', 'link'=>'link')") */
+    /** @Column(type="string", name="type", columnDefinition="ENUM('int', 'decimal', 'string', 'multi-string', 'file', 'img', 'bool', 'date', 'link'=>'link', 'select'=>'select')") */
     public $type;
     /** @Column(type="string", name="extra", length=255) */
     public $extra;

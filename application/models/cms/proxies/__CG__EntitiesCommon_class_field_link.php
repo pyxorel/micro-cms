@@ -45,7 +45,7 @@ class Common_class_field_link extends \Entities\Common_class_field_link implemen
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'id_com_class', 'id_field', 'order', 'common_class', '__field');
+        return array('__isInitialized__', 'id', 'id_com_class', 'id_field', 'order', 'rules', 'common_class', '__field');
     }
 
     public function __clone()

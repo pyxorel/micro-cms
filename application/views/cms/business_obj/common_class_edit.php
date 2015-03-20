@@ -32,7 +32,7 @@
 <?php
 echo form_open('cms/business_obj/edit_common_class', "id=\"form\" class=\"form-horizontal well\"");
 echo form_hidden('id', isset($obj) ? $obj->id : set_value('id'));
-echo form_input(['name'=>'order', 'id'=>'order', 'type'=>'hidden']);
+echo form_input(['name' => 'order', 'id' => 'order', 'type' => 'hidden']);
 ?>
 
 <legend>Редактирование класса</legend>
@@ -59,27 +59,27 @@ echo form_input(['name'=>'order', 'id'=>'order', 'type'=>'hidden']);
                     <div id_input="<?= $item->id ?>">
                         <a href="#" class="up" id_input="<?= $item->id ?>" title="Вверх"><span class="icon-arrow-up" style="display: inline-block;"></span></a>
                         <a href="#" class="down" id_input="<?= $item->id ?>" title="Вниз"><span style="display: inline-block;" class="icon-arrow-down"></span></a>
-                        <label class="checkbox"  style="display: inline-block;"><?= form_checkbox("fields[]", $item->id, TRUE, "id=\"ids\""); ?><?= $item->name . " ($item->type)" ?></label>
+                        <label class="checkbox" style="display: inline-block;"><?= form_checkbox("fields[]", $item->id, TRUE, "id=\"ids\""); ?><?= $item->name . " ($item->loc_name)" ?></label>
                     </div>
-                    <?php $has[$item->id] = $item->name; break; ?>
+                    <?php $has[$item->id] = $item->name;
+                    break; ?>
                 <?php endif ?>
             <?php endforeach; ?>
         <?php endforeach; ?>
-        <?php foreach ($fields as $item):?>
-                <?php if (array_key_exists($item->id, $has)===FALSE): ?>
-            <div id_input="<?= $item->id ?>"><a href="#" class="up" id_input="<?= $item->id ?>"><span class="icon-arrow-up" style="display: inline-block;"></span></a>
-                <a href="#" class="down" id_input="<?= $item->id ?>"><span style="display: inline-block;" class="icon-arrow-down"></span></a>
-                <label class="checkbox"  style="display: inline-block;"><?= form_checkbox("fields[]", $item->id, FALSE, "id=\"ids\""); ?><?= $item->name  . " ($item->type)"; ?></label>
-            </div>
-                <?php endif ?>
-        <?php endforeach;?>
+        <?php foreach ($fields as $item): ?>
+            <?php if (array_key_exists($item->id, $has) === FALSE): ?>
+                <div id_input="<?= $item->id ?>">
+                    <a href="#" class="up" id_input="<?= $item->id ?>"><span class="icon-arrow-up" style="display: inline-block;"></span></a>
+                    <a href="#" class="down" id_input="<?= $item->id ?>"><span style="display: inline-block;" class="icon-arrow-down"></span></a>
+                    <label class="checkbox" style="display: inline-block;"><?= form_checkbox("fields[]", $item->id, FALSE, "id=\"ids\""); ?><?= $item->name . " ($item->type)"; ?></label>
+                </div>
+            <?php endif ?>
+        <?php endforeach; ?>
     </div>
 
     <div class="pull-right">
-        <input type="submit" value="Применить" id="ok" name="ok"
-               class="btn btn-primary"/> <input type="submit"
-                                                value="Сохранить и выйти" id="save" name="save"
-                                                class="btn btn-primary"/>
+        <input type="submit" value="Применить" id="ok" name="ok" class="btn btn-primary"/>
+        <input type="submit" value="Сохранить и выйти" id="save" name="save" class="btn btn-primary"/>
         <?= anchor('cms/business_obj', 'Отмена', "class=\"btn\""); ?>
     </div>
 </fieldset>

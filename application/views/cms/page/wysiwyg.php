@@ -1,28 +1,17 @@
-<script
-    src="<?= base_url('application/content/cms/javaScripts/elrte/js/elrte.full.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
-
-<script
-    src="<?= base_url('application/content/cms/javaScripts/elrte/js/i18n/elrte.ru.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
-
-<script
-    src="<?= base_url('application/content/cms/javaScripts/elfinder/js/elfinder.min.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
-
-<script
-    src="<?= base_url('application/content/cms/javaScripts/elfinder/js/i18n/elfinder.ru.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
+<script src="<?= base_url('application/content/cms/javaScripts/elrte/js/elrte.full.js') ?>" type="text/javascript" charset="utf-8"></script>
+<script src="<?= base_url('application/content/cms/javaScripts/elrte/js/i18n/elrte.ru.js') ?>" type="text/javascript" charset="utf-8"></script>
+<script src="<?= base_url('application/content/cms/javaScripts/elfinder/js/elfinder.min.js') ?>" type="text/javascript" charset="utf-8"></script>
+<script src="<?= base_url('application/content/cms/javaScripts/elfinder/js/i18n/elfinder.ru.js') ?>" type="text/javascript" charset="utf-8"></script>
 
 
 <?php
-echo link_tag(base_url('application/content/cms/jquery-ui-1.8.24.custom.css'));
+echo link_tag(base_url('application/content/cms/jquery-ui.css'));
 echo link_tag(base_url('application/content/cms/javaScripts/elrte/css/elrte.full.css'));
 echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinder.min.css'));
 ?>
 
 <script type="text/javascript" charset="utf-8">
-	<?php require_once 'application/views/cms/page/elfinder_init.php'?>
+    <?php require_once 'application/views/cms/page/elfinder_init.php'?>
 
     $(function () {
 
@@ -41,26 +30,26 @@ echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinde
             }
         );
 
-		elRTE.prototype.options.panels.custom_panel = [
-			'copy', 'cut', 'pasteformattext', 'removeformat', 'docstructure',
-			'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript',
-			'forecolor', 'hilitecolor',
-			'outdent', 'indent',
-			'justifyleft', 'justifycenter', 'justifyright', 'justifyfull',
-			'formatblock', 'fontsize', 'fontname',
-			'insertorderedlist', 'insertunorderedlist',
-			'horizontalrule', 'blockquote', 'div', 'stopfloat', 'nbsp',
-			'link', 'unlink',
-			'image',
-			'about'
-			
-		];
-		elRTE.prototype.options.toolbars.custom_panel = ['custom_panel'];
-		
+        elRTE.prototype.options.panels.custom_panel = [
+            'copy', 'cut', 'pasteformattext', 'removeformat', 'docstructure',
+            'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript',
+            'forecolor', 'hilitecolor',
+            'outdent', 'indent',
+            'justifyleft', 'justifycenter', 'justifyright', 'justifyfull',
+            'formatblock', 'fontsize', 'fontname',
+            'insertorderedlist', 'insertunorderedlist',
+            'horizontalrule', 'blockquote', 'div', 'stopfloat', 'nbsp',
+            'link', 'unlink',
+            'image',
+            'about'
+
+        ];
+        elRTE.prototype.options.toolbars.custom_panel = ['custom_panel'];
+
         $('#elFinder a').delay(300).animate({'background-position': '0 0'}, 300);
         var dialog;
         var opts = {
-			toolbar: 'custom_panel',
+            toolbar: 'custom_panel',
             absoluteURLs: false,
             doctype: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">',
             cssClass: 'el-rte',
@@ -77,19 +66,19 @@ echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinde
                             getfile: {
                                 oncomplete: 'close'
                             }
-						},
-						defaultView: elfinder_opt.defaultView,
-						useBrowserHistory: elfinder_opt.useBrowserHistory,
-						width: elfinder_opt.width,
-						lang : elfinder_opt.lang,
-						contextmenu : elfinder_opt.contextmenu,
-                        uiOptions : elfinder_opt.uiOptions,
-                        getFileCallback: function(file) {
-                            file_path =  file.hash.replace(/^[a-z0-9]+_/, '');
-                            callback('<?= base_url()?>' + 'file_content'+ '/'+ file_path);
-                            dialog=null;
+                        },
+                        defaultView: elfinder_opt.defaultView,
+                        useBrowserHistory: elfinder_opt.useBrowserHistory,
+                        width: elfinder_opt.width,
+                        lang: elfinder_opt.lang,
+                        contextmenu: elfinder_opt.contextmenu,
+                        uiOptions: elfinder_opt.uiOptions,
+                        getFileCallback: function (file) {
+                            file_path = file.hash.replace(/^[a-z0-9]+_/, '');
+                            callback('<?= base_url()?>' + 'file_content' + '/' + file_path);
+                            dialog = null;
                         }
-                    });
+                    }).css('z-index', 10001).addClass('ui-dialog');
                 } else {
                     dialog.dialogelfinder('open');
                 }
@@ -97,7 +86,7 @@ echo link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinde
         };
 
         <?php foreach($this->data['langs'] as $lang): ?>
-            $('<?="#data\\\\[$lang->id\\\\]\\\\[content\\\\]"?>').elrte(opts);
+        $('<?="#data\\\\[$lang->id\\\\]\\\\[content\\\\]"?>').elrte(opts);
         <?php endforeach?>
         $('.tab-pane').removeAttr('style');
 

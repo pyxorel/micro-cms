@@ -75,7 +75,7 @@ class Template_model extends CI_Model
 				$this->last_error = self::$TEMPLATE_EXISTS;
 				return FALSE;
 			}
-			@file_put_contents($this->config->item('path_template') . $name . self::$TEMPLATE_EXT, $text);
+			//@file_put_contents($this->config->item('path_template') . $name . self::$TEMPLATE_EXT, $text);
 			@unlink($this->config->item('path_template') . $old_name . self::$TEMPLATE_EXT);
 		}
 		

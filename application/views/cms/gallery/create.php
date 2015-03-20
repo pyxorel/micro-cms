@@ -1,15 +1,11 @@
 <script>
     $(document).ready(function () {
-
         $("#form").validate({
-
             rules: {
-
                 name: {
                     required: true,
                     maxlength: 255
                 },
-
                 description: {
                     maxlength: 255
                 }
@@ -46,8 +42,7 @@ echo form_open('cms/gallery/create', "id=\"form\" class=\"form-horizontal well\"
     </div>
 
     <div class="pull-right">
-        <input type="submit" value="Сохранить и выйти" id="save" name="save"
-               class="btn btn-primary"/>
+        <input type="submit" value="Сохранить и выйти" id="save" name="save" class="btn btn-primary"/>
         <?php echo anchor('cms/gallery', 'Отмена', "class=\"btn\""); ?>
     </div>
 

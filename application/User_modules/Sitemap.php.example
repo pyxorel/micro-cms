@@ -1,0 +1,100 @@
+<?php
+
+namespace User_modules;
+
+class Sitemap
+{
+    function __construct()
+    {
+
+    }
+
+    public static function sitemap()
+    {
+        $core = new \Core_site();
+        $menu = $core->get_menu_from_route('');
+        $s = '';
+        self::sub($menu, $s, $core, base_url());
+        return $s;
+    }
+
+    private static function sub($menu, & $str, \Core_site & $core, $base_url)
+    {
+        $url = $base_url . ($menu->route[0] == '/' ? ltrim($menu->route, '/') : $menu->route);
+
+        if (!$menu->is_service) {
+            $str .= "<li><a href=\"$url\">" . $menu->name . "</a>";
+        }
+        if (isset($menu->menu)) {
+            if (!$menu->is_service) {
+                $str .= "<ul>";
+            }
+            foreach ($menu->menu as $m) {
+                self::sub($m, $str, $core, $base_url);
+                if ($m->s_name == 'type_topas' || $m->s_name == 'type_astra' || $m->s_name == 'type_tank') {
+                    $objs = $core->get_objects_by_id_menu($m->id);
+                    $str .= '<ul>';
+                    foreach ($objs as $obj) {
+                        $str .= "<li><a href=\"{$base_url}Sewerage/{$obj->fields['url']['value']}\">" . $obj->fields['name']['value'] . "</a></li>";
+                    }
+                    $str .= '</ul>';
+                }
+            }
+
+            if (!$menu->is_service) {
+                $str .= "</ul>";
+            }
+        }
+        if (!$menu->is_service) {
+            $str .= '</li>';
+        }
+    }
+
+    public static function sitemap_xml()
+    {
+        $ci = & get_instance();
+        $core = new \Core_site();
+        $menu = $core->get_menu_from_route('');
+        $ci->load->library('Xml_writer');
+        $xml = new \Xml_writer();
+
+        $xml->setXmlVersion('1.0');
+        $xml->setCharSet('utf-8');
+        $xml->setRootName('urlset', ['xmlns' => 'http://www.sitemaps.org/schemas/sitemap/0.9',
+            'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
+            'xsi:schemaLocation' => "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"]);
+        $xml->initiate();
+        $l_code = DEFAULT_LANG_CODE;
+        $last_mod = date("Y-m-d", filemtime("./application/cache/{$l_code}_menu.xml"));
+        self::sub_xml($menu, $xml, $core, base_url(), $last_mod);
+        $xml->getXml(true);
+    }
+
+    private static function sub_xml($menu, \Xml_writer & $xml, \Core_site & $core, $base_url, $last_mod)
+    {
+        if (!isset($menu->menu)) return null;
+        foreach ($menu->menu as $m) {
+            if (!$m->is_service && $m->s_name != 'type_topas' && $m->s_name != 'type_astra' && $m->s_name != 'type_tank') {
+                $xml->startElement('url');
+                $xml->addNode('loc', $base_url . ($m->route[0] == '/' ? ltrim($m->route, '/') : $m->route));
+                $xml->addNode('lasmod', $last_mod);
+                $xml->addNode('changefreq', 'daily');
+                $xml->addNode('priority', '0.5');
+                $xml->endElement();
+            }
+            if ($m->s_name == 'type_topas' || $m->s_name == 'type_astra' || $m->s_name == 'type_tank') {
+                $objs = $core->get_objects_by_id_menu($m->id);
+                foreach ($objs as $obj) {
+                    $xml->startElement('url');
+                    $xml->addNode('loc', $base_url . 'sewerage/' . $obj->fields['url']['value']);
+                    $xml->addNode('lasmod', $last_mod);
+                    $xml->addNode('changefreq', 'daily');
+                    $xml->addNode('priority', '0.5');
+                    $xml->endElement();
+                }
+            }
+            self::sub_xml($m, $xml, $core, $base_url, $last_mod);
+        }
+    }
+
+}

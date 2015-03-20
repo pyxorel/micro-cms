@@ -22,7 +22,12 @@ class Page extends BaseController
         $s_text = empty($s_text) ? $this->input->get('s_text', TRUE) : $s_text;
 
         $paginator = new Paginator($page);
-        $data = array('pages' => $this->Page_model->get_pages($paginator, DEFAULT_LANG_CODE, $field, $order, ['head' => $s_text, 'name'=>$s_text]),
+        $pages = $this->Page_model->get_pages($paginator, DEFAULT_LANG_CODE, $field, $order, ['head' => $s_text, 'name'=>$s_text], NULL, NULL);
+
+        if(empty($pages))
+            $pages = $this->Page_model->get_pages($paginator, DEFAULT_LANG_CODE, $field, $order, NULL, NULL, $s_text);
+
+        $data = array('pages' => $pages,
             'to' => $order,
             'page' => $page,
             'field' => $field,
@@ -51,6 +56,7 @@ class Page extends BaseController
         $this->data = $data;
 
         $data_content = $this->input->get_post('data', FALSE);
+
         Core_site::_remove_base_url_href_src($data_content, 'content');
 
         if ($this->Page_model->isValid() == FALSE) {
@@ -76,6 +82,8 @@ class Page extends BaseController
         $this->load->model('cms/Template_model');
 
         $data_content = $this->Page_model->read_pageByID($id);
+
+        if(empty($data_content)) parent::_404();
         Core_site::_add_base_url_href_src($data_content, 'content');
 
         $data = array('page' => $data_content, 'langs' => $this->Lang_model->get_langs(), 'templates' => $this->Template_model->get_templates());

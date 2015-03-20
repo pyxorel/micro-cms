@@ -30,12 +30,17 @@
             if ($(this).val() == 'link') {
                 $('#class_container').show();
                 $('#extra').val($('#_class option:first-child').val());
+            } else if ($(this).val() == 'select') {
+                $('#extra_container').show();
+                $('#extra').attr('type', 'text');
             }
             else {
+                $('#extra_container').hide();
                 $('#class_container').hide();
                 $('#extra').val('');
                 $('#_class option:first-child').attr("selected", "selected");
             }
+
         });
 
         $('#_class').change(function () {
@@ -64,7 +69,7 @@
 
     <div class="control-group">
         <label class="control-label" for="type">Тип</label>
-        <?= form_dropdown('type', \Entities\Common_class_field::$TYPES, NULL ,'class="input-medium" id="type"'); ?>
+        <?= form_dropdown('type', \Entities\Common_class_field::$TYPES, NULL, 'class="input-medium" id="type"'); ?>
     </div>
 
     <div class="control-group" style="display: none;" id="class_container">
@@ -72,7 +77,10 @@
         <?= form_dropdown('class', $classes, NULL, 'class="input-medium" id="_class"'); ?>
     </div>
 
-    <?= form_input(['name' => 'extra', 'type' => 'hidden'], set_value('extra'), 'class="" id="extra"'); ?>
+    <div class="control-group" id="extra_container" style="display: none;">
+        <label class="control-label" for="unit">Значения ( , - разделитель )</label>
+        <?= form_input(['name' => 'extra', 'type' => 'text'], set_value('extra'), 'class="" id="extra"'); ?>
+    </div>
 
     <div class="control-group">
         <label class="control-label" for="unit">Единица</label>
@@ -80,8 +88,7 @@
     </div>
 
     <div class="pull-right">
-        <input type="submit" value="Сохранить и выйти" id="save" name="save"
-               class="btn btn-primary"/>
+        <input type="submit" value="Сохранить и выйти" id="save" name="save" class="btn btn-primary"/>
         <?= anchor('cms/business_obj/fields', 'Отмена', "class=\"btn\""); ?>
     </div>
 

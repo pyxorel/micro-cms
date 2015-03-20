@@ -21,7 +21,7 @@
             </tr>
 
             <?php
-            foreach ($fields as  $i=>$item):
+            foreach ($fields as $i => $item):
                 $linkName = anchor('cms/business_obj/edit_common_class_field_view/' . $item->id, $item->loc_name);
                 ?>
                 <tr>
@@ -29,7 +29,8 @@
                     <td><i class="icon-edit"></i> <?= $linkName ?></td>
                     <td><?= $item->type ?></td>
                     <td><i class="icon-remove"></i>
-                        <?= anchor('cms/business_obj/delete_common_class_field/' . $item->id, ' удалить', 'onclick="return confirm(\'Подтверждаете удаление?\') ? true : false;"') ?></td>
+                        <?= anchor('cms/business_obj/delete_common_class_field/' . $item->id, ' удалить', 'onclick="return confirm(\'Подтверждаете удаление?\') ? true : false;"') ?>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </table>

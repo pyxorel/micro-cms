@@ -20,14 +20,15 @@
             </tr>
 
             <?php
-            foreach ($classes as $i=>$item):
+            foreach ($classes as $i => $item):
                 $linkName = anchor('cms/business_obj/edit_common_class_view/' . $item->id, $item->name);
                 ?>
                 <tr>
                     <td><?= ++$i ?></td>
                     <td><i class="icon-edit"></i> <?= $linkName ?></td>
                     <td><i class="icon-remove"></i>
-                        <?= anchor('cms/business_obj/delete_common_class/' . $item->id, ' удалить', 'onclick="return confirm(\'Подтверждаете удаление?\') ? true : false;"') ?></td>
+                        <?= anchor('cms/business_obj/delete_common_class/' . $item->id, ' удалить', 'onclick="return confirm(\'Подтверждаете удаление?\') ? true : false;"') ?>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </table>

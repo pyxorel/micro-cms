@@ -1,17 +1,9 @@
 <body>
+<script src="<?= base_url('application/content/cms/javaScripts/elfinder/js/elfinder.min.js') ?>" type="text/javascript" charset="utf-8"></script>
+<script src="<?= base_url('application/content/cms/javaScripts/elfinder/js/i18n/elfinder.ru.js') ?>" type="text/javascript" charset="utf-8"></script>
 
-<script
-    src="<?= base_url('application/content/cms/javaScripts/elfinder/js/elfinder.min.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
-
-<script
-    src="<?= base_url('application/content/cms/javaScripts/elfinder/js/i18n/elfinder.ru.js') ?>"
-    type="text/javascript" charset="utf-8"></script>
-
-<?= link_tag(base_url('application/content/cms/jquery-ui-1.8.24.custom.css')); ?>
+<?= link_tag(base_url('application/content/cms/jquery-ui.css')); ?>
 <?= link_tag(base_url('application/content/cms/javaScripts/elfinder/css/elfinder.min.css')); ?>
-
-
 
 <script>
     $(function () {
@@ -79,12 +71,11 @@
             resizable: false,
             height: 490,
             width: 540,
-            position: ["center", "center"],
             buttons: {
                 "Применить": function () {
                     var id = $("#add_obj_dialog").attr('id_input');
-                    $('#container_'+id).children().remove();
-                    $('#container_'+id).append($('#add_obj_dialog').children().clone());
+                    $('#container_' + id).children().remove();
+                    $('#container_' + id).append($('#add_obj_dialog').children().clone());
                     $(this).dialog("close");
                 },
                 "Закрыть": function () {
@@ -96,27 +87,27 @@
         var arr_objs = [];
 
         <?php foreach ($obj->fields as $k => $item): ?>
-            <?php if($item['type']=='link'):?>
-            arr_objs[<?=$item['id']?>] = $.parseJSON('<?=$item['value']?>');
+        <?php if($item['type']=='link'):?>
+        arr_objs[<?=$item['id']?>] = $.parseJSON('<?=$item['value']?>');
         <?php endif;?>
 
         <?php endforeach; ?>
 
         $(".add_obj").click(function () {
             var id = $(this).attr('id');
-            $("#add_obj_dialog").load("<?= base_url('cms/business_obj/get_part_instances')?>/"+$(this).attr('class_name') + '/' + $(this).attr('id'), function(){
-             $("#add_obj_dialog").attr('id_input', $(".add_obj").attr('id'));
-             $('#add_obj_dialog').dialog('option', 'title', 'Добавление объектов: ' + $(this).attr('class_name'));
+            $("#add_obj_dialog").load("<?= base_url('cms/business_obj/get_part_instances')?>/" + $(this).attr('class_name') + '/' + $(this).attr('id'), function () {
+                $("#add_obj_dialog").attr('id_input', $(".add_obj").attr('id'));
+                $('#add_obj_dialog').dialog('option', 'title', 'Добавление объектов: ' + $(this).attr('class_name'));
 
-                $('#add_obj_dialog #container_objs_'+id+ ' :input').each(function(){
-                 if ($.inArray($(this).attr('id_input'),arr_objs[id])>-1){
-                     $(this).prop('checked', true);
-                 }
-             });
+                $('#add_obj_dialog #container_objs_' + id + ' :input').each(function () {
+                    if ($.inArray($(this).attr('id_input'), arr_objs[id]) > -1) {
+                        $(this).prop('checked', true);
+                    }
+                });
 
 
-             $("#add_obj_dialog").dialog("open");
-             });
+                $("#add_obj_dialog").dialog("open");
+            });
             return false;
         });
 
@@ -124,24 +115,34 @@
 </script>
 
 <?php include_once 'application/views/cms/menu.php' ?>
-<div id="add_obj_dialog" id_input= "" title="">
-</div>
+<div id="add_obj_dialog" id_input="" title=""></div>
 <?php
 echo form_open_multipart('cms/business_obj/edit_instance', "id=\"form\" class=\"form-horizontal well\"");
 echo form_hidden('id', isset($obj) ? $obj->id : set_value('id'));
+echo form_hidden('s_class', isset($s_class) ? $s_class : set_value('s_class'));
 ?>
 
-<legend>Редактирование объекта <?="($obj->class_name)"?></legend>
+<legend>Редактирование объекта <?= "($obj->class_name)" ?></legend>
 <?= validation_errors('<div class="control-group"><span class="error">', '</span></div>'); ?>
 <fieldset id="static">
     <div class="control-group">Заполните необходимые поля:</div>
     <?php foreach ($obj->fields as $k => $item):
+        $select = explode(',', $item['extra']);
+
+        $assoc_select = [];
+        foreach ($select as $s) {
+            $assoc_select[$s] = $s;
+        }
+
         $id = "fields[{$item['id']}]";
         ?>
         <div class="control-group" style="margin-left: 10px;">
-            <label class="control-label" for="<?= $id ?>"><?= $item['field_loc_name'] ?></label>
+            <label style="width: 250px;" class="control-label" for="<?= $id ?>"><?= $item['field_loc_name'] ?></label>
             <?php switch ($item['type']):
-                case 'string': ?>
+                case 'select': ?>
+                    <?= form_dropdown("fields[{$item['id']}]", $assoc_select, $item['value'], "id=\"$id\" class=\"input-large\""); ?>
+                    <?php break; ?>
+                <?php case 'string': ?>
                     <?= form_input("fields[{$item['id']}]", $item['value'], "id=\"$id\" class=\"input-xxlarge\""); ?>
                     <?php break; ?>
                 <?php case
@@ -161,9 +162,10 @@ echo form_hidden('id', isset($obj) ? $obj->id : set_value('id'));
                     <?= anchor('#', '<i class="icon-plus-sign"></i> Выбрать', "name=\"add\" id=\"add_fields_{$item['id']}\" input_id=\"{$item['id']}\" class=\"btn add_file\""); ?>
                     <div id="container_file_<?= $item['id'] ?>" input_id="<?= $item['id'] ?>" style="display: inline;">
                         <?php if (!empty($files)) foreach ($files as $f): ?>
-                            <?php if(!empty($f)): ?>
-                            <div style="display: inline;"><a href="#" class="rm"><span class="icon-remove" style="margin-left: 10px;"></span></a><?= base64_decode($f) ?>
-                            </div>
+                            <?php if (!empty($f)): ?>
+                                <div style="display: inline;">
+                                    <a href="#" class="rm" title="удалить"><span class="icon-remove" style="margin-left: 10px;"></span></a> <?= base64_decode($f) ?>
+                                </div>
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
@@ -174,9 +176,10 @@ echo form_hidden('id', isset($obj) ? $obj->id : set_value('id'));
                     <?= anchor('#', '<i class="icon-plus-sign"></i> Выбрать', "name=\"add\" id=\"add_fields_{$item['id']}\" input_id=\"{$item['id']}\" class=\"btn add_file\""); ?>
                     <div id="container_file_<?= $item['id'] ?>" input_id="<?= $item['id'] ?>" style="display: inline;">
                         <?php if (!empty($files)) foreach ($files as $f): ?>
-                            <?php if(!empty($f)): ?>
-                            <div style="display: inline;"><a href="#" class="rm"><span class="icon-remove" style="margin-left: 10px;"></span></a><?= base64_decode($f) ?>
-                            </div>
+                            <?php if (!empty($f)): ?>
+                                <div style="display: inline;">
+                                    <a href="#" class="rm" title="удалить"><span class="icon-remove" style="margin-left: 10px;"></span></a> <?= base64_decode($f) ?>
+                                </div>
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
@@ -188,12 +191,12 @@ echo form_hidden('id', isset($obj) ? $obj->id : set_value('id'));
                 <?php case 'date': ?>
                     <?= form_input(['name' => "fields[{$item['id']}]"], $item['value'], "id=\"fields[{$item['id']}]\" class=\"input-medium date_time\""); ?>
                     <?php break; ?>
-                    <?php case 'link': ?>
+                <?php case 'link': ?>
                     <?= form_checkbox(['name' => "fields[{$item['id']}][]"], 'fake', TRUE, 'style=display:none;'); ?>
                     <?= anchor('#', "<i class=\"icon-plus-sign\"></i> Выбрать ({$item['field_loc_name']})", "class_name=\"{$item['extra']}\" id=\"{$item['id']}\" class=\"btn add_obj\""); ?>
                     <div id="container_<?= $item['id'] ?>" style="display: none;">
                         <?php foreach (json_decode($item['value']) as $i): ?>
-                        <?= form_checkbox("fields[{$item['id']}][]", $i, TRUE, NULL) ?>
+                            <?= form_checkbox("fields[{$item['id']}][]", $i, TRUE, NULL) ?>
                         <?php endforeach; ?>
                     </div>
                     <?php break; ?>
@@ -201,15 +204,12 @@ echo form_hidden('id', isset($obj) ? $obj->id : set_value('id'));
         </div>
     <?php endforeach; ?>
     <div class="pull-right">
-        <input type="submit" value="Сохранить и выйти" id="save" name="save"
-               class="btn btn-primary"/>
-        <?= anchor('cms/business_obj/instances', 'Отмена', "class=\"btn\""); ?>
+        <input type="submit" value="Сохранить и выйти" id="save" name="save" class="btn btn-primary"/>
+        <?= anchor('cms/business_obj/instances' . (isset($s_class) ? '/?s_class=' . $s_class : null), 'Отмена', "class=\"btn\""); ?>
     </div>
 </fieldset>
 <?= form_close(); ?>
 <?php include_once 'application/views/cms/footer.php' ?>
-
-
 
 
 </body>

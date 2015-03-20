@@ -18,9 +18,13 @@ input.error,select.error,textarea.error {
 	border: 1px solid rgb(204, 0, 0);
 }
 
+.highlight {
+	background-color: #FF8;
+}
+
 label.error {
 	color: rgb(204, 0, 0);
-	padding-left: 185px;
+	padding-left: #FF8185px;
     display: block;
 }
 
