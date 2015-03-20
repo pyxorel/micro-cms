@@ -31,63 +31,60 @@ class Paginator
         $config['first_tag_open'] = '<li>';
         $config['first_tag_close'] = '</li>';
     }
-	
-	/**
-	 * Инициализировать пагинатор данными (по умолчания настроен на админку cms, с использование скроллера вида: 1...4 5 6...10)
-	 * @param unknown $site_url - 
-	 * @param unknown $paginator - пагинатор
-	 * @param unknown $t - $this
-	 * @param array $config - параметры отобржения
-	 */
-	public static function initPaginator($site_url, $paginator, $t, $config=NULL)
-	{
 
-		if($config===NULL)
-		{
-			$config['uri_segment'] = 4;
-			$config['cur_tag_open'] = "<li class='active'><a>";
-			$config['cur_tag_close'] = '</a></li>';
-			
-			$config['num_tag_open'] = '<li>';
-			$config['num_tag_close'] = '</li>';
-			
-			$config['next_tag_open'] = '<li>';
-			$config['next_tag_close'] = '</li>';
-			
-			$config['prev_tag_open'] = '<li>';
-			$config['prev_tag_close'] = '</li>';
-			
-			$config['last_link'] = /*ceil($paginator->getCountRow()/$paginator->getSize());*/'';
-			$config['last_tag_open'] = '';
-			$config['last_tag_close'] = '';
+    /**
+     * Инициализировать пагинатор данными (по умолчания настроен на админку cms)
+     * @param unknown $site_url -
+     * @param unknown $paginator - пагинатор
+     * @param unknown $t - $this
+     * @param array $config - параметры отобржения
+     */
+    public static function initPaginator($site_url, $paginator, $t, $config = NULL)
+    {
+
+        if ($config === NULL) {
+            $config['uri_segment'] = 4;
+            $config['cur_tag_open'] = "<li class='active'><a>";
+            $config['cur_tag_close'] = '</a></li>';
+
+            $config['num_tag_open'] = '<li>';
+            $config['num_tag_close'] = '</li>';
+
+            $config['next_tag_open'] = '<li>';
+            $config['next_tag_close'] = '</li>';
+
+            $config['prev_tag_open'] = '<li>';
+            $config['prev_tag_close'] = '</li>';
+
+            $config['last_link'] = /*ceil($paginator->getCountRow()/$paginator->getSize());*/
+                '';
+            $config['last_tag_open'] = '';
+            $config['last_tag_close'] = '';
 
             $config['first_link'] = '1';//1;
-			$config['first_tag_open'] = '';
-			$config['first_tag_close'] = '';
+            $config['first_tag_open'] = '';
+            $config['first_tag_close'] = '';
 
-			$config['prev_link']=FALSE;
-			$config['next_link']=TRUE;
+            $config['prev_link'] = FALSE;
+            $config['next_link'] = TRUE;
             $config['next_link'] = '&gt;';
             $config['prev_link'] = '&lt;';
-		}
-		else
-		{
-			$config=$config;
-		}
-		
-		$config['base_url'] = base_url($site_url);
-		$config['total_rows'] = $paginator->getCountRow();
-		$config['per_page'] = $paginator->getSize();
+        } else {
+            $config = $config;
+        }
+
+        $config['base_url'] = base_url($site_url);
+        $config['total_rows'] = $paginator->getCountRow();
+        $config['per_page'] = $paginator->getSize();
         $config['cur_page'] = $paginator->getPage();
-		$config['num_links'] = 3;
+        $config['num_links'] = 3;
         $config['reuse_query_string'] = TRUE;
         //$config['use_page_numbers'] = TRUE;
         $config['attributes']['rel'] = FALSE;
 
 
-
         $t->pagination->initialize($config);
-	}
+    }
 
     function Paginator($page = 0, $size = self::SIZE)
     {

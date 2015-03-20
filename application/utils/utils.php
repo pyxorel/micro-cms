@@ -147,18 +147,6 @@ class Utils
     }
 
     /**
-     * Получить востановленный путь к фалу созданный elFinderom
-     * @param string $url - url адрес к файлу
-     * @return string нормализованный путь к файлу
-     */
-    public static function getNormalizeeFileNameElFinder($url)
-    {
-        $start = strpos($url, 'target=') + 10;
-        $url = substr($url, $start, strlen($url) - $start);
-        return base64_decode($url);
-    }
-
-    /**
      * Recursively delete a directory
      */
     public static function unlinkRecursive($dir, $deleteSubDir = FALSE, $deleteRootToo = FALSE)
@@ -176,13 +164,10 @@ class Utils
                 self::unlinkRecursive($obj, true);
             }
         }
-
         closedir($dh);
-
         if ($deleteRootToo) {
             @rmdir($dir);
         }
-
         return TRUE;
     }
 
@@ -194,14 +179,12 @@ class Utils
                 array_push($dirs, $item);
             }
         }
-
         return $dirs;
     }
 
     public static function list_files($dir_name, $fill_key = FALSE, $ext = NULL)
     {
         $files = [];
-
         foreach (scandir($dir_name) as $item) {
             if (is_file($dir_name . $item)) {
                 if (!empty($ext)) {
@@ -221,7 +204,6 @@ class Utils
                 }
             }
         }
-
         return $files;
     }
 
