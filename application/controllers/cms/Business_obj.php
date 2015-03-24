@@ -105,6 +105,7 @@ class Business_obj extends BaseController
                 redirect('cms/business_obj');
             }
         }
+
     }
 
     public function delete_common_class($id)

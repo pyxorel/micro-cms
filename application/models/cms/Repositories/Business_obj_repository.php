@@ -411,13 +411,38 @@ class Business_obj_repository extends EntityRepository
         $obj->name = $name;
         $obj->loc_name = $loc_name;
         $adds = [];
+        $class = $this->_em->getReference('Entities\Common_class', $id);
         //add
         if (!empty($ids)) {
+            $x = count($ids);
             foreach ($ids as $i) {
-                $f = $this->_em->getReference('Entities\Common_class_field', $i);
-                if (!$obj->fields->contains($f)) {
-                    $obj->fields->add($f);
+                $f_d = $this->read_common_class_field($i);
+                if (!$obj->fields->contains($f_d)) {
                     array_push($adds, $i);
+                    $l = new Entities\Common_class_field_link();
+                    //sort new link
+                    foreach ($ids as $_i) {
+                        if ($_i == $f_d->get_id()) {
+                            $l->order = $x;
+                            $x--;
+                        }
+                    }
+                    $l->rules = '';
+                    $l->__field = $f_d;
+                    $l->common_class = $class;
+                    $obj->links->add($l);
+                } else {
+                    //sort exists link
+                    foreach ($obj->links as $l) {
+                        $x = count($ids);
+                        foreach ($ids as $i) {
+                            if ($i == $l->__field->id) {
+                                $l->order = $x;
+                                break;
+                            }
+                            $x--;
+                        }
+                    }
                 }
             }
 
@@ -427,22 +452,9 @@ class Business_obj_repository extends EntityRepository
                     if (!empty($f->id)) $obj->fields->removeElement($f);
                 }
             }
-
-            //sort
-            foreach ($obj->links as $l) {
-                $x = count($ids);
-                foreach ($ids as $i) {
-                    if ($i == $l->__field->id) {
-                        $l->order = $x;
-                        break;
-                    }
-                    $x--;
-                }
-            }
         }
 
         $this->_em->persist($obj);
-
         $this->_em->getConnection()->beginTransaction();
         try {
             $this->_em->flush();

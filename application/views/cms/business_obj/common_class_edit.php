@@ -14,16 +14,40 @@
             }
         });
 
+        $("#sortable_to").sortable({
+            scroll: true,
+            revert: false,
+            delay: 0,
+            placeholder: "ui-state-highlight-empty",
+            stop: function (event, ui) {
+                var $input = $(ui.item).find('input');
+                $($input).attr('checked', "checked");
+                $(ui.item).width('auto');
+                $(ui.item).find('a').remove();
+                $(ui.item).append('<a href="#" class="icon-remove" style="display: inline;width:auto; float: right; margin-top: 2px;"><span></span></a>');
+            }
+        }).disableSelection();
 
-        $('.up').click(function () {
-            var parent = $(this).parent();
-            parent.insertBefore(parent.prev());
+        $("li.ui-state-highlight").draggable({
+            revert: "invalid",
+            cursor: "move",
+            connectToSortable: "#sortable_to"
         });
 
-        $('.down').click(function () {
-            var parent = $(this).parent();
-            parent.insertAfter(parent.next());
+        $('#sortable_to').on('click', 'a.icon-remove', function () {
+            var $p = $(this).parent();
+            $p.find('input').removeAttr('checked');
+            $(this).remove();
+            $p.appendTo($('#sortable_from')).css('position', 'relative').draggable({
+                revert: false,
+                cursor: "move",
+                connectToSortable: "#sortable_to"
+            });
+            return false;
         });
+
+
+
     });
 </script>
 
@@ -50,37 +74,54 @@ echo form_input(['name' => 'order', 'id' => 'order', 'type' => 'hidden']);
         <?= form_input('loc_name', isset($obj) ? $obj->loc_name : set_value('loc_name'), 'class="input-xxlarge" id="loc_name"'); ?>
     </div>
 
-    <div class="control-group">Выберите необходимые поля:</div>
-    <div class="control-group" style="margin-left: 10px;" id="container">
-        <?php $has = [];
-        foreach ($obj->links as $link):
-            foreach ($fields as $item): ?>
-                <?php if ($link->__field->id == $item->id): ?>
-                    <div id_input="<?= $item->id ?>">
-                        <a href="#" class="up" id_input="<?= $item->id ?>" title="Вверх"><span class="icon-arrow-up" style="display: inline-block;"></span></a>
-                        <a href="#" class="down" id_input="<?= $item->id ?>" title="Вниз"><span style="display: inline-block;" class="icon-arrow-down"></span></a>
-                        <label class="checkbox" style="display: inline-block;"><?= form_checkbox("fields[]", $item->id, TRUE, "id=\"ids\""); ?><?= $item->name . " ($item->loc_name)" ?></label>
-                    </div>
-                    <?php $has[$item->id] = $item->name;
-                    break; ?>
-                <?php endif ?>
-            <?php endforeach; ?>
-        <?php endforeach; ?>
-        <?php foreach ($fields as $item): ?>
-            <?php if (array_key_exists($item->id, $has) === FALSE): ?>
-                <div id_input="<?= $item->id ?>">
-                    <a href="#" class="up" id_input="<?= $item->id ?>"><span class="icon-arrow-up" style="display: inline-block;"></span></a>
-                    <a href="#" class="down" id_input="<?= $item->id ?>"><span style="display: inline-block;" class="icon-arrow-down"></span></a>
-                    <label class="checkbox" style="display: inline-block;"><?= form_checkbox("fields[]", $item->id, FALSE, "id=\"ids\""); ?><?= $item->name . " ($item->type)"; ?></label>
-                </div>
-            <?php endif ?>
-        <?php endforeach; ?>
+    <div class="control-group">
+        <label class="control-label" for="loc_name">Поля</label>
+        <div class="span6" style="margin: 0">
+            <div class="head">
+                <div class="head">Используемые поля</div>
+            </div>
+            <div class="content">
+                <ul id="sortable_to">
+                    <?php $has = [];
+                    foreach ($obj->links as $link):
+                        foreach ($fields as $item): ?>
+                            <?php if ($link->__field->id == $item->id): ?>
+                                <li class="ui-state-highlight"><?= $item->loc_name . " ($item->type)" ?>
+                                    <?= form_checkbox('fields[]', $item->id, TRUE, "id=\"ids\" style=\"display:none\""); ?>
+                                    <a href="#" class="icon-remove" style="display: inline;width:auto; float: right; margin-top: 2px;"><span></span></a>
+                                </li>
+                                <?php $has[$item->id] = $item->name;
+                                break; ?>
+                            <?php endif ?>
+                        <?php endforeach; ?>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+        <div class="span6">
+            <div class="head">Возможные поля</div>
+            <div class="content">
+                <ul id="sortable_from">
+                    <?php foreach ($fields as $item): ?>
+                    <?php if (array_key_exists($item->id, $has) === FALSE): ?>
+                            <li class="ui-state-highlight"><?= $item->loc_name . " ($item->type)" ?>
+                                <?= form_checkbox('fields[]', $item->id, FALSE, "id=\"ids\" style=\"display:none\""); ?>
+                            </li>
+                        <?php endif ?>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
     </div>
-
+    <div class="control-group">
+        <span class="label label-info">Перетащите нужные поля в левую область</span>
+    </div>
+    <div class="control-group">
     <div class="pull-right">
         <input type="submit" value="Применить" id="ok" name="ok" class="btn btn-primary"/>
         <input type="submit" value="Сохранить и выйти" id="save" name="save" class="btn btn-primary"/>
         <?= anchor('cms/business_obj', 'Отмена', "class=\"btn\""); ?>
+    </div>
     </div>
 </fieldset>
 

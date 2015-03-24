@@ -1,5 +1,6 @@
 <script src="<?= base_url('application/content/cms/javaScripts/jquery-ui.min.js') ?>" type="text/javascript" charset="utf-8"></script>
 <script src="<?= base_url('application/content/cms/javaScripts/jquery.ui.datepicker-ru.js') ?>" type="text/javascript" charset="utf-8"></script>
+<?= link_tag(base_url('application/content/cms/jquery-ui.css')); ?>
 <script type="text/javascript">
     $(function () {
 

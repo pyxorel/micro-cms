@@ -17,7 +17,7 @@ class Common_class {
 	/** @Column(type="string", name="loc_name", length=50) */
 	public $loc_name;
 	/**
-	 * @OneToMany(targetEntity="Common_class_field_link", mappedBy="common_class")
+	 * @OneToMany(targetEntity="Common_class_field_link", mappedBy="common_class", cascade={"persist"})
 	 * @OrderBy({"order" = "DESC"})
      */
 	public $links;
@@ -52,6 +52,6 @@ class Common_class {
 	public function __construct()
 	{
 		$this->fields = new ArrayCollection();
-		//$this->$links = new ArrayCollection();
+		$this->$links = new ArrayCollection();
 	}
 }
